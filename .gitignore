@@ -4,6 +4,7 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 .idea/
+*.DotSettings.user
 
 # ASP.NET Core secrets - never commit these
 appsettings.Development.json
