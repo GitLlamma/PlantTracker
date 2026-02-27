@@ -14,3 +14,7 @@ appsettings.*.json
 *.db
 *.db-shm
 *.db-wal
+
+# Debug output files
+db-path.txt
+

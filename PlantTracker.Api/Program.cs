@@ -92,20 +92,18 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 // ── Auto-apply migrations on startup ────────────────────────────────────────
-Console.ForegroundColor = ConsoleColor.Green;
-Console.WriteLine("==============================================");
-Console.WriteLine($"  [DB] Database path:");
-Console.WriteLine($"  {dbPath}");
-Console.WriteLine("==============================================");
-Console.ResetColor();
-Console.Out.Flush();
+// Write db path to a file so it's visible regardless of console output
+var logFilePath = Path.Combine(builder.Environment.ContentRootPath, "db-path.txt");
+File.WriteAllText(logFilePath, 
+    $"ContentRootPath: {builder.Environment.ContentRootPath}{Environment.NewLine}" +
+    $"DB Path: {dbPath}{Environment.NewLine}" +
+    $"WorkingDirectory: {Directory.GetCurrentDirectory()}{Environment.NewLine}" +
+    $"Timestamp: {DateTime.Now}{Environment.NewLine}");
 
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
-    Console.WriteLine("[DB] Migrations applied. Database is ready.");
-    app.Logger.LogInformation("[DB] Migrations applied. Database is ready.");
 }
 
 // ── Middleware pipeline ──────────────────────────────────────────────────────
