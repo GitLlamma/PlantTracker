@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlantTracker.ViewModels"
+             x:Class="PlantTracker.Views.SettingsPage"
+             x:DataType="vm:SettingsViewModel"
+             Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="20">
+
+            <Label Text="Account" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Primary}"/>
+
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Name" FontSize="12" TextColor="Gray"/>
+                <Label Text="{Binding DisplayName}" FontSize="16"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Email" FontSize="12" TextColor="Gray"/>
+                <Label Text="{Binding Email}" FontSize="16"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Zip Code" FontSize="12" TextColor="Gray"/>
+                <Label Text="{Binding ZipCode}" FontSize="16"/>
+            </VerticalStackLayout>
+
+            <BoxView HeightRequest="1" Color="{StaticResource Secondary}" Margin="0,8"/>
+
+            <Button Text="Sign Out"
+                    Command="{Binding LogoutCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="Red"
+                    BorderColor="Red"
+                    BorderWidth="1"
+                    CornerRadius="8"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
+

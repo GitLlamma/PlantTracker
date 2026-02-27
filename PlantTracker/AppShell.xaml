@@ -4,11 +4,60 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:PlantTracker.Views"
-    Title="PlantTracker">
+    Shell.NavBarIsVisible="False">
+
+    <!-- ── Auth routes (no tab bar) ─────────────────────────────────────── -->
+    <ShellContent
+        x:Name="LoginShell"
+        Route="Login"
+        ContentTemplate="{DataTemplate views:LoginPage}"
+        Shell.TabBarIsVisible="False"/>
 
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate views:MainPage}"
-        Route="MainPage" />
+        x:Name="RegisterShell"
+        Route="Register"
+        ContentTemplate="{DataTemplate views:RegisterPage}"
+        Shell.TabBarIsVisible="False"/>
+
+    <!-- ── Main app tab bar ──────────────────────────────────────────────── -->
+    <TabBar x:Name="MainTabBar">
+
+        <ShellContent
+            Title="Search"
+            Route="Search"
+            ContentTemplate="{DataTemplate views:SearchPage}">
+            <ShellContent.Icon>
+                <FontImageSource Glyph="&#x1F50D;" FontFamily="OpenSansRegular" Size="22"/>
+            </ShellContent.Icon>
+        </ShellContent>
+
+        <ShellContent
+            Title="My Garden"
+            Route="MyGarden"
+            ContentTemplate="{DataTemplate views:MyGardenPage}">
+            <ShellContent.Icon>
+                <FontImageSource Glyph="&#x1FAB4;" FontFamily="OpenSansRegular" Size="22"/>
+            </ShellContent.Icon>
+        </ShellContent>
+
+        <ShellContent
+            Title="Reminders"
+            Route="Reminders"
+            ContentTemplate="{DataTemplate views:RemindersPage}">
+            <ShellContent.Icon>
+                <FontImageSource Glyph="&#x1F514;" FontFamily="OpenSansRegular" Size="22"/>
+            </ShellContent.Icon>
+        </ShellContent>
+
+        <ShellContent
+            Title="Settings"
+            Route="Settings"
+            ContentTemplate="{DataTemplate views:SettingsPage}">
+            <ShellContent.Icon>
+                <FontImageSource Glyph="&#x2699;" FontFamily="OpenSansRegular" Size="22"/>
+            </ShellContent.Icon>
+        </ShellContent>
+
+    </TabBar>
 
 </Shell>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlantTracker.ViewModels"
+             x:Class="PlantTracker.Views.MyGardenPage"
+             x:DataType="vm:MyGardenViewModel"
+             Title="{Binding Title}">
+
+    <Grid RowDefinitions="*">
+
+        <!-- Empty state -->
+        <VerticalStackLayout IsVisible="{Binding IsEmpty}"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Center"
+                             Spacing="12">
+            <Label Text="🪴" FontSize="64" HorizontalOptions="Center"/>
+            <Label Text="Your garden is empty."
+                   FontSize="18"
+                   TextColor="Gray"
+                   HorizontalOptions="Center"/>
+            <Label Text="Search for plants to add them here."
+                   FontSize="14"
+                   TextColor="Gray"
+                   HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+
+        <!-- Plant list -->
+        <CollectionView ItemsSource="{Binding Plants}"
+                        IsVisible="{Binding IsNotBusy}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                    <!-- Full plant card implemented in the next step -->
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Loading -->
+        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center"/>
+
+    </Grid>
+
+</ContentPage>
+
