@@ -28,8 +28,9 @@
         <CollectionView ItemsSource="{Binding Plants}"
                         IsVisible="{Binding IsNotBusy}">
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="x:String">
+                <DataTemplate>
                     <!-- Full plant card implemented in the next step -->
+                    <Label Text="placeholder" IsVisible="False"/>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
