@@ -39,7 +39,7 @@ public class AuthService
             var response = await _http.PostAsJsonAsync("api/auth/register", new RegisterRequestDto
             {
                 Email = dto.Email.Trim().ToLowerInvariant(),
-                Password = dto.Password,
+                Password = dto.Password.Trim(),
                 DisplayName = dto.DisplayName,
                 ZipCode = dto.ZipCode
             });
@@ -69,7 +69,7 @@ public class AuthService
             var response = await _http.PostAsJsonAsync("api/auth/login", new LoginRequestDto
             {
                 Email = dto.Email.Trim().ToLowerInvariant(),
-                Password = dto.Password
+                Password = dto.Password.Trim()
             });
 
             if (!response.IsSuccessStatusCode)
