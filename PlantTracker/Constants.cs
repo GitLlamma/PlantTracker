@@ -2,13 +2,11 @@ namespace PlantTracker;
 
 public static class Constants
 {
-#if DEBUG
-    // Windows/desktop debug
+#if DEBUG && WINDOWS
+    // Windows desktop debug — points to local API
     public const string ApiBaseUrl = "https://localhost:7036";
-    // Android emulator — swap to this when running on Android:
-    // public const string ApiBaseUrl = "https://10.0.2.2:7036";
 #else
-    // ⚠️ Replace this with your actual Azure App Service URL before building for release
+    // Android (debug or release) and all release builds use Azure
     public const string ApiBaseUrl = "https://planttrackerapi-d8haeza3dve2e0cz.westcentralus-01.azurewebsites.net";
 #endif
 

@@ -36,7 +36,13 @@ public class AuthService
     {
         try
         {
-            var response = await _http.PostAsJsonAsync("api/auth/register", dto);
+            var response = await _http.PostAsJsonAsync("api/auth/register", new RegisterRequestDto
+            {
+                Email = dto.Email.Trim().ToLowerInvariant(),
+                Password = dto.Password,
+                DisplayName = dto.DisplayName,
+                ZipCode = dto.ZipCode
+            });
 
             if (!response.IsSuccessStatusCode)
             {
@@ -52,7 +58,7 @@ public class AuthService
         }
         catch (Exception ex)
         {
-            return (false, ex.Message);
+            return (false, ex.InnerException?.Message ?? ex.Message);
         }
     }
 
@@ -60,10 +66,17 @@ public class AuthService
     {
         try
         {
-            var response = await _http.PostAsJsonAsync("api/auth/login", dto);
+            var response = await _http.PostAsJsonAsync("api/auth/login", new LoginRequestDto
+            {
+                Email = dto.Email.Trim().ToLowerInvariant(),
+                Password = dto.Password
+            });
 
             if (!response.IsSuccessStatusCode)
-                return (false, "Invalid email or password.");
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                return (false, $"Login failed ({(int)response.StatusCode}): {body}");
+            }
 
             var result = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
             if (result is null) return (false, "Invalid response from server.");
@@ -73,7 +86,7 @@ public class AuthService
         }
         catch (Exception ex)
         {
-            return (false, ex.Message);
+            return (false, ex.InnerException?.Message ?? ex.Message);
         }
     }
 

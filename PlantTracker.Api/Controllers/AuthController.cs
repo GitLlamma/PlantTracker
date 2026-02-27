@@ -28,10 +28,11 @@ public class AuthController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
+        var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
         var user = new ApplicationUser
         {
-            UserName = dto.Email,
-            Email = dto.Email,
+            UserName = normalizedEmail,
+            Email = normalizedEmail,
             DisplayName = dto.DisplayName,
             ZipCode = dto.ZipCode
         };
@@ -64,7 +65,7 @@ public class AuthController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var user = await _userManager.FindByEmailAsync(dto.Email);
+        var user = await _userManager.FindByEmailAsync(dto.Email.Trim().ToLowerInvariant());
 
         if (user is null || !await _userManager.CheckPasswordAsync(user, dto.Password))
             return Unauthorized("Invalid email or password.");
