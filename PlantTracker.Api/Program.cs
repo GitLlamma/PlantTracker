@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using PlantTracker.Api.Data;
 using PlantTracker.Api.Models;
 using PlantTracker.Api.Services;
@@ -75,15 +75,10 @@ builder.Services.AddSwaggerGen(options =>
         In = ParameterLocation.Header,
         Description = "Enter your JWT token. Example: eyJhbGci..."
     });
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    options.AddSecurityRequirement(doc =>
     {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
-            },
-            []
-        }
+        var scheme = new OpenApiSecuritySchemeReference("Bearer", doc);
+        return new OpenApiSecurityRequirement { [scheme] = [] };
     });
 });
 
