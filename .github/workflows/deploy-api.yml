@@ -30,13 +30,17 @@ jobs:
       - name: Publish
         run: dotnet publish PlantTracker.Api/PlantTracker.Api.csproj --configuration Release --output ./publish --no-build
 
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}"}'
+      - name: Zip publish output
+        run: cd ./publish && zip -r ../deploy.zip .
 
-      - name: Deploy to Azure App Service
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: planttrackerapi
-          package: ./publish
+      - name: Deploy to Azure via zip deploy
+        run: |
+          az login --service-principal \
+            --username ${{ secrets.AZURE_CLIENT_ID }} \
+            --password ${{ secrets.AZURE_CLIENT_SECRET }} \
+            --tenant ${{ secrets.AZURE_TENANT_ID }}
+          az webapp deploy \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --name planttrackerapi \
+            --src-path deploy.zip \
+            --type zip
