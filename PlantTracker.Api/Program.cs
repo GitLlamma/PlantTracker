@@ -121,15 +121,13 @@ public class Program
         }
 
         // ── Middleware pipeline ──────────────────────────────────────────────────────
-        if (app.Environment.IsDevelopment())
+
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
         {
-            app.UseSwagger();
-            app.UseSwaggerUI(options =>
-            {
-                options.SwaggerEndpoint("/swagger/v1/swagger.json", "PlantTracker API v1");
-                options.RoutePrefix = "swagger";
-            });
-        }
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "PlantTracker API v1");
+            options.RoutePrefix = "swagger";
+        });
 
         // Only redirect to HTTPS locally — on Azure, TLS is terminated at the load
         // balancer and the app receives plain HTTP internally, so redirecting causes loops.
