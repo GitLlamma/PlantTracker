@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+﻿﻿using Microsoft.Extensions.Logging;
 using PlantTracker.Services;
 using PlantTracker.ViewModels;
 using PlantTracker.Views;
@@ -38,6 +38,7 @@ public static class MauiProgram
         builder.Services.AddTransient<RemindersViewModel>();
         builder.Services.AddTransient<SettingsViewModel>();
         builder.Services.AddTransient<AddCustomPlantViewModel>();
+        builder.Services.AddTransient<EditPlantViewModel>();
 
         // ── Views ────────────────────────────────────────────────────────────
         builder.Services.AddTransient<LoginPage>();
@@ -48,6 +49,7 @@ public static class MauiProgram
         builder.Services.AddTransient<RemindersPage>();
         builder.Services.AddTransient<SettingsPage>();
         builder.Services.AddTransient<AddCustomPlantPage>();
+        builder.Services.AddTransient<EditPlantPage>();
 
         // ── Shell & App ──────────────────────────────────────────────────────
         builder.Services.AddSingleton<AppShell>();

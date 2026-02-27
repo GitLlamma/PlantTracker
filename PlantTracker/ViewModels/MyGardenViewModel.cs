@@ -9,24 +9,35 @@ using PlantTracker.Shared.DTOs.Plants;
 
 namespace PlantTracker.ViewModels;
 
+/// <summary>
+/// Wraps a UserPlantDto with per-item busy state so that watering one plant
+/// only disables that card's button, not every Water button in the list.
+/// </summary>
+public partial class GardenPlantItem(UserPlantDto plant) : ObservableObject
+{
+    [ObservableProperty] private UserPlantDto _plant = plant;
+    [ObservableProperty] private bool _isWatering;
+}
+
 public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAddedMessage>
 {
     private readonly GardenService _garden;
+    private readonly EditPlantViewModel _editVm;
 
     [ObservableProperty] private bool _isEmpty;
 
-    public ObservableCollection<UserPlantDto> Plants { get; } = [];
+    public ObservableCollection<GardenPlantItem> Plants { get; } = [];
 
-    public MyGardenViewModel(GardenService garden)
+    public MyGardenViewModel(GardenService garden, EditPlantViewModel editVm)
     {
         _garden = garden;
+        _editVm = editVm;
         Title = "My Garden";
         WeakReferenceMessenger.Default.Register(this);
     }
 
     public void Receive(GardenPlantAddedMessage message)
     {
-        // Refresh garden list when a plant is added from the detail page
         MainThread.BeginInvokeOnMainThread(() =>
             LoadGardenCommand.ExecuteAsync(null));
     }
@@ -42,7 +53,7 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
             var plants = await _garden.GetGardenAsync();
             Plants.Clear();
             foreach (var p in plants)
-                Plants.Add(p);
+                Plants.Add(new GardenPlantItem(p));
 
             IsEmpty = Plants.Count == 0;
         }
@@ -61,38 +72,45 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
         await Shell.Current.GoToAsync("AddCustomPlant");
 
     [RelayCommand]
-    private async Task GoToPlantDetailAsync(UserPlantDto plant)
+    private async Task EditPlantAsync(GardenPlantItem item)
     {
-        if (plant.PlantId == 0)
+        _editVm.InitForEdit(item.Plant);
+        await Shell.Current.GoToAsync("EditPlant");
+    }
+
+    [RelayCommand]
+    private async Task GoToPlantDetailAsync(GardenPlantItem item)
+    {
+        if (item.Plant.PlantId == 0)
         {
-            // Custom plant — pass the full UserPlantDto so PlantDetailPage can display it
             await Shell.Current.GoToAsync("PlantDetail", new Dictionary<string, object>
             {
-                { "UserPlant", plant }
+                { "UserPlant", item.Plant }
             });
         }
         else
         {
             var summary = new PlantSummaryDto
             {
-                Id = plant.PlantId,
-                CommonName = plant.CommonName,
-                ScientificName = plant.ScientificName,
-                ThumbnailUrl = plant.ThumbnailUrl
+                Id = item.Plant.PlantId,
+                CommonName = item.Plant.CommonName,
+                ScientificName = item.Plant.ScientificName,
+                ThumbnailUrl = item.Plant.ThumbnailUrl
             };
 
             await Shell.Current.GoToAsync("PlantDetail", new Dictionary<string, object>
             {
-                { "PlantId", plant.PlantId },
+                { "PlantId", item.Plant.PlantId },
                 { "PlantSummary", summary }
             });
         }
     }
 
     [RelayCommand]
-    private async Task EditReminderAsync(UserPlantDto plant)
+    private async Task EditReminderAsync(GardenPlantItem item)
     {
-        // Toggle reminder on/off with frequency prompt
+        var plant = item.Plant;
+
         if (plant.WateringReminderEnabled)
         {
             var confirm = await Shell.Current.DisplayAlertAsync(
@@ -110,7 +128,7 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
             };
             var (success, updated, _) = await _garden.UpdatePlantAsync(plant.Id, dto);
             if (success && updated is not null)
-                ReplaceInList(plant, updated);
+                item.Plant = updated;
         }
         else
         {
@@ -139,39 +157,42 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
             };
             var (success, updated, _) = await _garden.UpdatePlantAsync(plant.Id, dto);
             if (success && updated is not null)
-                ReplaceInList(plant, updated);
+                item.Plant = updated;
         }
     }
 
-    private void ReplaceInList(UserPlantDto old, UserPlantDto updated)
+    [RelayCommand(AllowConcurrentExecutions = true)]
+    private async Task MarkWateredAsync(GardenPlantItem item)
     {
-        var index = Plants.IndexOf(old);
-        if (index >= 0) Plants[index] = updated;
-    }
-    [RelayCommand]
-    private async Task MarkWateredAsync(UserPlantDto plant)
-    {
-        var (success, updated) = await _garden.MarkWateredAsync(plant.Id);
-        if (success && updated is not null)
-            ReplaceInList(plant, updated);
+        if (item.IsWatering) return;
+        item.IsWatering = true;
+        try
+        {
+            var (success, updated) = await _garden.MarkWateredAsync(item.Plant.Id);
+            if (success && updated is not null)
+                item.Plant = updated;
+        }
+        finally
+        {
+            item.IsWatering = false;
+        }
     }
 
     [RelayCommand]
-    private async Task RemovePlantAsync(UserPlantDto plant)
+    private async Task RemovePlantAsync(GardenPlantItem item)
     {
         var confirm = await Shell.Current.DisplayAlertAsync(
             "Remove Plant",
-            $"Remove {plant.CommonName} from your garden?",
+            $"Remove {item.Plant.CommonName} from your garden?",
             "Remove", "Cancel");
 
         if (!confirm) return;
 
-        var success = await _garden.RemovePlantAsync(plant.Id);
+        var success = await _garden.RemovePlantAsync(item.Plant.Id);
         if (success)
         {
-            Plants.Remove(plant);
+            Plants.Remove(item);
             IsEmpty = Plants.Count == 0;
         }
     }
 }
-

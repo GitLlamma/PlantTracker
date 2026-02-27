@@ -83,12 +83,16 @@ public class GardenController : ControllerBase
         var userId = GetUserId();
         if (userId is null) return Unauthorized();
 
-        // Prevent duplicates — one entry per plant per user
-        var exists = await _db.UserPlants
-            .AnyAsync(p => p.UserId == userId && p.PlantId == dto.PlantId);
+        // Prevent duplicates for Perenual plants — one entry per plant per user.
+        // Custom plants (PlantId == 0) are always allowed since each is unique.
+        if (dto.PlantId != 0)
+        {
+            var exists = await _db.UserPlants
+                .AnyAsync(p => p.UserId == userId && p.PlantId == dto.PlantId);
 
-        if (exists)
-            return Conflict("This plant is already in your garden.");
+            if (exists)
+                return Conflict("This plant is already in your garden.");
+        }
 
         var plant = new UserPlant
         {
@@ -127,10 +131,23 @@ public class GardenController : ControllerBase
 
         if (plant is null) return NotFound();
 
+        // Notes and reminders are editable for all plants
         plant.Notes = dto.Notes;
         plant.WateringReminderEnabled = dto.WateringReminderEnabled;
         plant.WateringFrequencyDays = dto.WateringFrequencyDays;
         plant.LastWateredAt = dto.LastWateredAt;
+
+        // Name and care attributes are only editable for custom plants
+        if (plant.PlantId == 0)
+        {
+            if (!string.IsNullOrWhiteSpace(dto.CommonName))
+                plant.CommonName = dto.CommonName;
+            plant.ScientificName = dto.ScientificName ?? string.Empty;
+            plant.Watering = dto.Watering;
+            plant.Sunlight = dto.Sunlight;
+            plant.Cycle = dto.Cycle;
+            plant.CareLevel = dto.CareLevel;
+        }
 
         await _db.SaveChangesAsync();
 

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlantTracker.ViewModels"
+             x:Class="PlantTracker.Views.EditPlantPage"
+             x:DataType="vm:EditPlantViewModel"
+             Title="{Binding Title}">
+
+    <Shell.TitleView>
+        <Grid ColumnDefinitions="Auto,*,Auto" Padding="0,0,8,0">
+            <Button Grid.Column="0"
+                    Text="Cancel"
+                    Command="{Binding CancelCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Primary}"
+                    FontSize="15"
+                    Padding="0"/>
+            <Label Grid.Column="1"
+                   Text="{Binding Title}"
+                   FontAttributes="Bold"
+                   FontSize="17"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+            <Button Grid.Column="2"
+                    Text="Save"
+                    Command="{Binding SaveCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Primary}"
+                    FontAttributes="Bold"
+                    FontSize="15"
+                    Padding="0"/>
+        </Grid>
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <!-- Plant Name — only editable for custom plants -->
+            <VerticalStackLayout Spacing="6" IsVisible="{Binding IsCustomPlant}">
+                <Label Text="Plant Name *" FontAttributes="Bold" FontSize="14"/>
+                <Border Style="{StaticResource CardFrame}" Padding="12,4">
+                    <Entry Text="{Binding CommonName}"
+                           Placeholder="e.g. Tomato, Basil, Rose"
+                           ReturnType="Next"/>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Scientific Name — only editable for custom plants -->
+            <VerticalStackLayout Spacing="6" IsVisible="{Binding IsCustomPlant}">
+                <Label Text="Scientific Name" FontAttributes="Bold" FontSize="14"/>
+                <Border Style="{StaticResource CardFrame}" Padding="12,4">
+                    <Entry Text="{Binding ScientificName}"
+                           Placeholder="Optional"
+                           ReturnType="Next"/>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Watering — only for custom plants -->
+            <VerticalStackLayout Spacing="6" IsVisible="{Binding IsCustomPlant}">
+                <Label Text="Watering Needs" FontAttributes="Bold" FontSize="14"/>
+                <Border Style="{StaticResource CardFrame}" Padding="4,0">
+                    <Picker ItemsSource="{Binding WateringOptions}"
+                            SelectedItem="{Binding SelectedWatering}"
+                            Title="Select watering frequency"/>
+                </Border>
+                <Label Text="{Binding WateringDescription}" FontSize="11" TextColor="Gray"/>
+            </VerticalStackLayout>
+
+            <!-- Sunlight — only for custom plants -->
+            <VerticalStackLayout Spacing="6" IsVisible="{Binding IsCustomPlant}">
+                <Label Text="Sunlight" FontAttributes="Bold" FontSize="14"/>
+                <Border Style="{StaticResource CardFrame}" Padding="4,0">
+                    <Picker ItemsSource="{Binding SunlightOptions}"
+                            SelectedItem="{Binding SelectedSunlight}"
+                            Title="Select sunlight requirement"/>
+                </Border>
+                <Label Text="{Binding SunlightDescription}" FontSize="11" TextColor="Gray"/>
+            </VerticalStackLayout>
+
+            <!-- Life Cycle — only for custom plants -->
+            <VerticalStackLayout Spacing="6" IsVisible="{Binding IsCustomPlant}">
+                <Label Text="Life Cycle" FontAttributes="Bold" FontSize="14"/>
+                <Border Style="{StaticResource CardFrame}" Padding="4,0">
+                    <Picker ItemsSource="{Binding CycleOptions}"
+                            SelectedItem="{Binding SelectedCycle}"
+                            Title="Select life cycle"/>
+                </Border>
+                <Label Text="{Binding CycleDescription}" FontSize="11" TextColor="Gray"/>
+            </VerticalStackLayout>
+
+            <!-- Care Level — only for custom plants -->
+            <VerticalStackLayout Spacing="6" IsVisible="{Binding IsCustomPlant}">
+                <Label Text="Care Level" FontAttributes="Bold" FontSize="14"/>
+                <Border Style="{StaticResource CardFrame}" Padding="4,0">
+                    <Picker ItemsSource="{Binding CareLevelOptions}"
+                            SelectedItem="{Binding SelectedCareLevel}"
+                            Title="Select care level"/>
+                </Border>
+                <Label Text="{Binding CareLevelDescription}" FontSize="11" TextColor="Gray"/>
+            </VerticalStackLayout>
+
+            <!-- Notes — visible for all plants -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="Notes" FontAttributes="Bold" FontSize="14"/>
+                <Border Style="{StaticResource CardFrame}" Padding="12,4">
+                    <Editor Text="{Binding Notes}"
+                            Placeholder="Any notes about this plant..."
+                            AutoSize="TextChanges"
+                            MinimumHeightRequest="80"/>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Save button -->
+            <Button Text="{Binding SaveButtonText}"
+                    Command="{Binding SaveCommand}"
+                    Style="{StaticResource PrimaryButton}"
+                    IsEnabled="{Binding IsBusy, Converter={x:StaticResource InvertedBoolConverter}}"
+                    Margin="0,8,0,0"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
+

@@ -15,6 +15,7 @@ public partial class AppShell : Shell
         // Register routes for pages not in the tab bar
         Routing.RegisterRoute("PlantDetail", typeof(PlantDetailPage));
         Routing.RegisterRoute("AddCustomPlant", typeof(AddCustomPlantPage));
+        Routing.RegisterRoute("EditPlant", typeof(EditPlantPage));
     }
 
     protected override async void OnAppearing()
