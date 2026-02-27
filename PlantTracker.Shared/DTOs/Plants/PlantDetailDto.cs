@@ -1,4 +1,4 @@
-﻿namespace PlantTracker.Shared.DTOs.Plants;
+namespace PlantTracker.Shared.DTOs.Plants;
 
 /// <summary>
 /// Full plant details returned from the detail endpoint / Perenual API.

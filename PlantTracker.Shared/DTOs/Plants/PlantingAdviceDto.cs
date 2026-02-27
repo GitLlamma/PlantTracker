@@ -1,4 +1,4 @@
-﻿namespace PlantTracker.Shared.DTOs.Plants;
+namespace PlantTracker.Shared.DTOs.Plants;
 
 /// <summary>
 /// The result of comparing a user's hardiness zone against a plant's ideal zone range.

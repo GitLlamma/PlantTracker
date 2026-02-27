@@ -1,4 +1,4 @@
-﻿namespace PlantTracker.Shared.DTOs.Garden;
+namespace PlantTracker.Shared.DTOs.Garden;
 
 /// <summary>
 /// Represents a plant saved to the user's garden (sent to and from the API).

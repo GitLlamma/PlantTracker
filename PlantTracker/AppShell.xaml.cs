@@ -1,4 +1,4 @@
-﻿namespace PlantTracker;
+namespace PlantTracker;
 
 public partial class AppShell : Shell
 {

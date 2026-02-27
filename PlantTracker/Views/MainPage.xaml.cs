@@ -1,4 +1,4 @@
-﻿﻿namespace PlantTracker.Views;
+namespace PlantTracker.Views;
 
 public partial class MainPage : ContentPage
 {

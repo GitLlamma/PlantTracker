@@ -1,4 +1,4 @@
-﻿namespace PlantTracker.Shared.DTOs.Auth;
+namespace PlantTracker.Shared.DTOs.Auth;
 
 public class AuthResponseDto
 {

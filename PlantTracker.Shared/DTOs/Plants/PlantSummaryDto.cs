@@ -1,4 +1,4 @@
-﻿namespace PlantTracker.Shared.DTOs.Plants;
+namespace PlantTracker.Shared.DTOs.Plants;
 
 /// <summary>
 /// A single result item returned from a plant search query.

@@ -1,4 +1,4 @@
-﻿namespace PlantTracker.Shared.DTOs.Garden;
+namespace PlantTracker.Shared.DTOs.Garden;
 
 /// <summary>
 /// Payload for updating notes or reminder settings on a saved plant.
