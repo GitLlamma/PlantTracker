@@ -53,4 +53,8 @@ public class ZoneService
 
         [System.Text.Json.Serialization.JsonPropertyName("temperature_range")]
         public string? TemperatureRange { get; set; }
-    
+    }
+}
+
+
+

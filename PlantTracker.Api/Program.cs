@@ -11,8 +11,13 @@ using PlantTracker.Api.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // ── Database ────────────────────────────────────────────────────────────────
+// Resolve the db path relative to the content root so it's always in the
+// project folder regardless of what working directory Rider launches from.
+var dbPath = Path.Combine(builder.Environment.ContentRootPath, "planttracker.db");
+Console.WriteLine($"[DB] Using database at: {dbPath}");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite($"Data Source={dbPath}"));
 
 // ── Identity ────────────────────────────────────────────────────────────────
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>

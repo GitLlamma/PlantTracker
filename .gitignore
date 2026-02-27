@@ -10,3 +10,7 @@ appsettings.Development.json
 appsettings.*.json
 !appsettings.json
 
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal
