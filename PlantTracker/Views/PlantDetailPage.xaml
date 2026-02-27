@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlantTracker.ViewModels"
+             x:Class="PlantTracker.Views.PlantDetailPage"
+             x:DataType="vm:PlantDetailViewModel"
+             Title="{Binding Title}">
+
+    <Shell.TitleView>
+        <Label Text="{Binding Title}"
+               FontAttributes="Bold"
+               FontSize="17"
+               VerticalOptions="Center"/>
+    </Shell.TitleView>
+
+    <Grid RowDefinitions="*">
+
+        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center"/>
+
+        <ScrollView IsVisible="{Binding IsNotBusy}">
+            <VerticalStackLayout Spacing="0">
+
+                <!-- Hero image -->
+                <Image Source="{Binding Detail.ImageUrl}"
+                       HeightRequest="220"
+                       Aspect="AspectFill"
+                       BackgroundColor="{StaticResource Secondary}"/>
+
+                <VerticalStackLayout Padding="20" Spacing="16">
+
+                    <!-- Name + Add to Garden -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="{Binding Detail.CommonName}"
+                                   FontSize="22"
+                                   FontAttributes="Bold"/>
+                            <Label Text="{Binding Detail.ScientificName}"
+                                   FontSize="13"
+                                   TextColor="Gray"
+                                   FontAttributes="Italic"/>
+                        </VerticalStackLayout>
+                        <Button Grid.Column="1"
+                                Text="+ Garden"
+                                Command="{Binding AddToGardenCommand}"
+                                IsVisible="{Binding IsInGarden, Converter={x:StaticResource InvertedBoolConverter}}"
+                                Style="{StaticResource PrimaryButton}"
+                                Padding="10,8"
+                                FontSize="13"/>
+                        <Label Grid.Column="1"
+                               Text="✅ In Garden"
+                               TextColor="{StaticResource Primary}"
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"
+                               IsVisible="{Binding IsInGarden}"/>
+                    </Grid>
+
+                    <!-- Planting advice banner -->
+                    <Border IsVisible="{Binding Advice, Converter={x:StaticResource IsNotNullConverter}}"
+                            BackgroundColor="{StaticResource Secondary}"
+                            StrokeShape="RoundRectangle 10"
+                            Padding="14,10"
+                            Stroke="Transparent">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="{Binding Advice.Message, StringFormat='{0}'}"
+                                   FontSize="14"/>
+                            <Label Text="{Binding AdviceEmoji, StringFormat='{0} Zone {1}'}"
+                                   FontSize="13"
+                                   TextColor="{StaticResource Primary}"
+                                   FontAttributes="Bold"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Description -->
+                    <VerticalStackLayout Spacing="6"
+                                         IsVisible="{Binding Detail.Description, Converter={x:StaticResource IsNotNullConverter}}">
+                        <Label Text="About" FontAttributes="Bold" FontSize="16"/>
+                        <Label Text="{Binding Detail.Description}" FontSize="14" LineBreakMode="WordWrap"/>
+                    </VerticalStackLayout>
+
+                    <!-- Care grid -->
+                    <Label Text="Care Requirements" FontAttributes="Bold" FontSize="16"/>
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
+
+                        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource CardFrame}">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="💧 Watering" FontSize="12" TextColor="Gray"/>
+                                <Label Text="{Binding Detail.Watering}" FontAttributes="Bold"/>
+                                <Label Text="{Binding Detail.WateringFrequencyDays, StringFormat='Every {0} days'}"
+                                       FontSize="11" TextColor="Gray"
+                                       IsVisible="{Binding Detail.WateringFrequencyDays, Converter={x:StaticResource IsNotNullConverter}}"/>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource CardFrame}">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="☀️ Sunlight" FontSize="12" TextColor="Gray"/>
+                                <Label Text="{Binding Detail.Sunlight[0]}" FontAttributes="Bold"
+                                       IsVisible="{Binding Detail.Sunlight, Converter={x:StaticResource IsNotNullConverter}}"/>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardFrame}">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="🌱 Cycle" FontSize="12" TextColor="Gray"/>
+                                <Label Text="{Binding Detail.Cycle}" FontAttributes="Bold"/>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource CardFrame}">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="🎯 Care Level" FontSize="12" TextColor="Gray"/>
+                                <Label Text="{Binding Detail.CareLevel}" FontAttributes="Bold"/>
+                            </VerticalStackLayout>
+                        </Border>
+
+                    </Grid>
+
+                    <!-- Hardiness zones -->
+                    <Border Style="{StaticResource CardFrame}"
+                            IsVisible="{Binding Detail.HardinessZoneMin, Converter={x:StaticResource IsNotNullConverter}}">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="🗺️ Hardiness Zones:" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <Label Text="{Binding Detail.HardinessZoneMin}" VerticalOptions="Center"/>
+                            <Label Text="–" VerticalOptions="Center"/>
+                            <Label Text="{Binding Detail.HardinessZoneMax}" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </Border>
+
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
+</ContentPage>
+

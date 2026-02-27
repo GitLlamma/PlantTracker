@@ -60,6 +60,9 @@ builder.Services.AddCors(options =>
 });
 
 // ── Controllers & OpenAPI ────────────────────────────────────────────────────
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient<PlantService>();
+builder.Services.AddHttpClient<ZoneService>();
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen(options =>
 {

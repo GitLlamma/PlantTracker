@@ -1,16 +1,98 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlantTracker.ViewModels"
+             xmlns:dto="clr-namespace:PlantTracker.Shared.DTOs.Plants;assembly=PlantTracker.Shared"
              x:Class="PlantTracker.Views.SearchPage"
-             Title="Search">
+             x:DataType="vm:SearchViewModel"
+             Title="{Binding Title}">
 
-    <VerticalStackLayout Padding="16" Spacing="16">
-        <Label Text="Search Plants"
-               FontSize="24"
-               FontAttributes="Bold"/>
-        <Label Text="Plant search coming soon."
-               TextColor="Gray"/>
-    </VerticalStackLayout>
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Search bar -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="16,12" ColumnSpacing="8">
+            <Entry Grid.Column="0"
+                   Placeholder="Search plants (e.g. tomato, rose...)"
+                   Text="{Binding SearchQuery}"
+                   ReturnCommand="{Binding SearchCommand}"
+                   ReturnType="Search"/>
+            <Button Grid.Column="1"
+                    Text="Search"
+                    Command="{Binding SearchCommand}"
+                    IsEnabled="{Binding IsNotBusy}"
+                    Style="{StaticResource PrimaryButton}"
+                    Padding="12,10"/>
+        </Grid>
+
+        <!-- Loading -->
+        <ActivityIndicator Grid.Row="1"
+                           IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center"/>
+
+        <!-- No results -->
+        <VerticalStackLayout Grid.Row="1"
+                             IsVisible="{Binding NoResults}"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Center"
+                             Spacing="8">
+            <Label Text="🔍" FontSize="48" HorizontalOptions="Center"/>
+            <Label Text="No plants found." TextColor="Gray" HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+
+        <!-- Results list -->
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding Results}"
+                        IsVisible="{Binding IsNotBusy}"
+                        SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="dto:PlantSummaryDto">
+                    <Border Style="{StaticResource CardFrame}" Margin="16,6">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SearchViewModel}}, Path=GoToDetailCommand}"
+                                CommandParameter="{Binding .}"/>
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="64,*" ColumnSpacing="12">
+                            <!-- Thumbnail -->
+                            <Border Grid.Column="0"
+                                    StrokeShape="RoundRectangle 8"
+                                    HeightRequest="64" WidthRequest="64"
+                                    BackgroundColor="{StaticResource Secondary}">
+                                <Image Source="{Binding ThumbnailUrl}"
+                                       Aspect="AspectFill"
+                                       HeightRequest="64" WidthRequest="64"/>
+                            </Border>
+                            <!-- Info -->
+                            <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                <Label Text="{Binding CommonName}"
+                                       FontAttributes="Bold"
+                                       FontSize="15"
+                                       LineBreakMode="TailTruncation"/>
+                                <Label Text="{Binding ScientificName}"
+                                       FontSize="12"
+                                       TextColor="Gray"
+                                       FontAttributes="Italic"
+                                       LineBreakMode="TailTruncation"/>
+                                <HorizontalStackLayout Spacing="8">
+                                    <Label Text="{Binding Cycle}"
+                                           FontSize="11"
+                                           TextColor="{StaticResource Primary}"
+                                           IsVisible="{Binding Cycle, Converter={x:StaticResource IsNotNullConverter}}"/>
+                                    <Label Text="{Binding Watering, StringFormat='💧 {0}'}"
+                                           FontSize="11"
+                                           TextColor="Gray"
+                                           IsVisible="{Binding Watering, Converter={x:StaticResource IsNotNullConverter}}"/>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
 
 </ContentPage>
 

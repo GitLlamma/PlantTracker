@@ -1,4 +1,5 @@
 ﻿using PlantTracker.Services;
+using PlantTracker.Views;
 
 namespace PlantTracker;
 
@@ -10,13 +11,15 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
         _auth = auth;
+
+        // Register routes for pages not in the tab bar
+        Routing.RegisterRoute("PlantDetail", typeof(PlantDetailPage));
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
 
-        // Redirect to login if the user has no stored token
         if (!_auth.IsLoggedIn)
             await GoToAsync("//Login");
     }
