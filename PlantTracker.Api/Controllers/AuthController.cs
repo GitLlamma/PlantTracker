@@ -50,7 +50,7 @@ public class AuthController : ControllerBase
             User = new UserDto
             {
                 Id = user.Id,
-                Email = user.Email!,
+                Email = user.Email ?? string.Empty,
                 DisplayName = user.DisplayName,
                 ZipCode = user.ZipCode
             }
@@ -78,7 +78,7 @@ public class AuthController : ControllerBase
             User = new UserDto
             {
                 Id = user.Id,
-                Email = user.Email!,
+                Email = user.Email ?? string.Empty,
                 DisplayName = user.DisplayName,
                 ZipCode = user.ZipCode
             }
@@ -104,7 +104,7 @@ public class AuthController : ControllerBase
         return Ok(new UserDto
         {
             Id = user.Id,
-            Email = user.Email!,
+            Email = user.Email ?? string.Empty,
             DisplayName = user.DisplayName,
             ZipCode = user.ZipCode
         });
@@ -140,10 +140,9 @@ public class AuthController : ControllerBase
         return Ok(new UserDto
         {
             Id = user.Id,
-            Email = user.Email!,
+            Email = user.Email ?? string.Empty,
             DisplayName = user.DisplayName,
             ZipCode = user.ZipCode
         });
     }
 }
-
