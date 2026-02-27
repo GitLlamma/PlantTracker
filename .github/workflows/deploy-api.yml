@@ -38,5 +38,5 @@ jobs:
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         with:
-          app-name: planttrackerapi-d8haeza3dve2e0cz
+          app-name: planttrackerapi
           package: ./publish
