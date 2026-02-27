@@ -1,16 +1,113 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlantTracker.ViewModels"
              x:Class="PlantTracker.Views.RemindersPage"
-             Title="Reminders">
+             x:DataType="vm:RemindersViewModel"
+             Title="{Binding Title}">
 
-    <VerticalStackLayout Padding="16" Spacing="16">
-        <Label Text="Reminders"
-               FontSize="24"
-               FontAttributes="Bold"/>
-        <Label Text="Watering reminders coming soon."
-               TextColor="Gray"/>
-    </VerticalStackLayout>
+    <Grid RowDefinitions="*">
 
+        <!-- Empty state -->
+        <VerticalStackLayout IsVisible="{Binding IsEmpty}"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Center"
+                             Spacing="12">
+            <Label Text="🔔" FontSize="64" HorizontalOptions="Center"/>
+            <Label Text="No reminders set."
+                   FontSize="18"
+                   TextColor="Gray"
+                   HorizontalOptions="Center"/>
+            <Label Text="Enable watering reminders on plants in your garden."
+                   FontSize="14"
+                   TextColor="Gray"
+                   HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+
+        <!-- Reminders list -->
+        <CollectionView ItemsSource="{Binding Reminders}"
+                        IsVisible="{Binding IsNotBusy}"
+                        SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:ReminderItem">
+                    <Border Style="{StaticResource CardFrame}" Margin="16,6">
+
+                        <Grid RowDefinitions="Auto,Auto" RowSpacing="10">
+
+                            <!-- Top row: thumbnail + name + status -->
+                            <Grid Grid.Row="0" ColumnDefinitions="64,*" ColumnSpacing="12">
+
+                                <!-- Thumbnail -->
+                                <Border Grid.Column="0"
+                                        StrokeShape="RoundRectangle 8"
+                                        HeightRequest="64" WidthRequest="64"
+                                        BackgroundColor="{StaticResource Secondary}"
+                                        Stroke="Transparent">
+                                    <Image Source="{Binding Plant.ThumbnailUrl}"
+                                           Aspect="AspectFill"
+                                           HeightRequest="64" WidthRequest="64"/>
+                                </Border>
+
+                                <!-- Info -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                    <Label Text="{Binding Plant.CommonName}"
+                                           FontAttributes="Bold"
+                                           FontSize="15"
+                                           LineBreakMode="TailTruncation"/>
+                                    <Label Text="{Binding Plant.ScientificName}"
+                                           FontSize="12"
+                                           TextColor="Gray"
+                                           FontAttributes="Italic"
+                                           LineBreakMode="TailTruncation"/>
+
+                                    <!-- Urgency badge -->
+                                    <Border StrokeShape="RoundRectangle 6"
+                                            Padding="6,3"
+                                            Stroke="Transparent"
+                                            BackgroundColor="{Binding StatusBackgroundColor}">
+                                        <Label Text="{Binding StatusText}"
+                                               FontSize="12"
+                                               FontAttributes="Bold"
+                                               TextColor="{Binding StatusTextColor}"/>
+                                    </Border>
+
+                                    <Label Text="{Binding FrequencyText}"
+                                           FontSize="11"
+                                           TextColor="Gray"/>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <!-- Bottom row: action buttons -->
+                            <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <Button Grid.Column="0"
+                                        Text="💧 Water Now"
+                                        FontSize="13"
+                                        Padding="0,8"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RemindersViewModel}}, Path=MarkWateredCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                <Button Grid.Column="1"
+                                        Text="🔕"
+                                        FontSize="13"
+                                        ToolTipProperties.Text="Disable reminder"
+                                        Padding="12,8"
+                                        BackgroundColor="{StaticResource Gray200}"
+                                        TextColor="{StaticResource Gray900}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RemindersViewModel}}, Path=DisableReminderCommand}"
+                                        CommandParameter="{Binding .}"/>
+                            </Grid>
+
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Loading -->
+        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center"/>
+
+    </Grid>
 </ContentPage>
 

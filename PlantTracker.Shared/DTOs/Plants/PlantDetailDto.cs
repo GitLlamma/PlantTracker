@@ -18,6 +18,11 @@ public class PlantDetailDto
     public string? Cycle { get; set; }              // e.g. "Perennial", "Annual", "Biennial"
     public string? CareLevel { get; set; }          // e.g. "Low", "Medium", "High"
 
+    // Planting info
+    public bool? Indoor { get; set; }               // true if plant can/should be grown indoors
+    public string? GrowthRate { get; set; }         // e.g. "Low", "Medium", "High"
+    public string? Dimension { get; set; }          // free-text growth dimensions / time description
+
     // Planting / zone info
     public int? HardinessZoneMin { get; set; }
     public int? HardinessZoneMax { get; set; }

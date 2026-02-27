@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using PlantTracker.Messages;
 using PlantTracker.Services;
 using PlantTracker.Shared.DTOs.Garden;
 using PlantTracker.Shared.DTOs.Plants;
@@ -21,6 +23,8 @@ public partial class PlantDetailViewModel : BaseViewModel
     [ObservableProperty] private bool _isInGarden;
     [ObservableProperty] private string _adviceEmoji = string.Empty;
 
+    public string IndoorOutdoorText => Detail?.Indoor == true ? "Indoors" : "Outdoors";
+
     public PlantDetailViewModel(PlantService plants, GardenService garden, AuthService auth)
     {
         _plants = plants;
@@ -35,6 +39,9 @@ public partial class PlantDetailViewModel : BaseViewModel
             LoadDetailCommand.ExecuteAsync(null);
     }
 
+    partial void OnDetailChanged(PlantDetailDto? value) =>
+        OnPropertyChanged(nameof(IndoorOutdoorText));
+
     [RelayCommand]
     public async Task LoadDetailAsync()
     {
@@ -46,6 +53,10 @@ public partial class PlantDetailViewModel : BaseViewModel
             Detail = await _plants.GetDetailAsync(PlantId);
             if (Detail is not null)
                 Title = Detail.CommonName;
+
+            // Check if plant is already saved to garden
+            var gardenPlants = await _garden.GetGardenAsync();
+            IsInGarden = gardenPlants.Any(p => p.PlantId == PlantId);
 
             // Load zone advice using user's stored zip
             var user = await _auth.GetCurrentUserAsync();
@@ -88,6 +99,7 @@ public partial class PlantDetailViewModel : BaseViewModel
         if (success)
         {
             IsInGarden = true;
+            WeakReferenceMessenger.Default.Send(new GardenPlantAddedMessage());
             await Shell.Current.DisplayAlertAsync("Added!", $"{dto.CommonName} has been added to your garden. 🌱", "OK");
         }
         else

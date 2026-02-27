@@ -85,6 +85,9 @@ public class PlantService
         Sunlight = p.Sunlight,
         Cycle = p.Cycle,
         CareLevel = p.CareLevel,
+        Indoor = p.Indoor,
+        GrowthRate = p.GrowthRate,
+        Dimension = p.Dimension,
         HardinessZoneMin = TryParseZone(p.Hardiness?.Min),
         HardinessZoneMax = TryParseZone(p.Hardiness?.Max),
     };

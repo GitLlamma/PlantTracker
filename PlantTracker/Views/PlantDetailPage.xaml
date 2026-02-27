@@ -109,7 +109,8 @@
                             </VerticalStackLayout>
                         </Border>
 
-                        <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource CardFrame}">
+                        <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource CardFrame}"
+                                IsVisible="{Binding Detail.CareLevel, Converter={x:StaticResource IsNotNullConverter}}">
                             <VerticalStackLayout Spacing="2">
                                 <Label Text="🎯 Care Level" FontSize="12" TextColor="Gray"/>
                                 <Label Text="{Binding Detail.CareLevel}" FontAttributes="Bold"/>
@@ -117,6 +118,43 @@
                         </Border>
 
                     </Grid>
+
+                    <!-- Planting & Growth -->
+                    <Label Text="Planting &amp; Growth" FontAttributes="Bold" FontSize="16"/>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowSpacing="12">
+
+                        <!-- Indoor / Outdoor -->
+                        <Border Grid.Column="0" Style="{StaticResource CardFrame}">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="🏠 Where to Plant" FontSize="12" TextColor="Gray"/>
+                                <Label Text="{Binding IndoorOutdoorText}" FontAttributes="Bold"/>
+                                <Label Text="Can also grow outdoors"
+                                       FontSize="11" TextColor="Gray"
+                                       IsVisible="{Binding Detail.Indoor}"/>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Growth Rate -->
+                        <Border Grid.Column="1" Style="{StaticResource CardFrame}"
+                                IsVisible="{Binding Detail.GrowthRate, Converter={x:StaticResource IsNotNullConverter}}">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="📈 Growth Rate" FontSize="12" TextColor="Gray"/>
+                                <Label Text="{Binding Detail.GrowthRate}" FontAttributes="Bold"/>
+                            </VerticalStackLayout>
+                        </Border>
+
+                    </Grid>
+
+                    <!-- Growth dimensions / time description -->
+                    <Border Style="{StaticResource CardFrame}"
+                            IsVisible="{Binding Detail.Dimension, Converter={x:StaticResource IsNotNullConverter}}">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="📏 Growth &amp; Size" FontAttributes="Bold" FontSize="13"/>
+                            <Label Text="{Binding Detail.Dimension}"
+                                   FontSize="13"
+                                   LineBreakMode="WordWrap"/>
+                        </VerticalStackLayout>
+                    </Border>
 
                     <!-- Hardiness zones -->
                     <Border Style="{StaticResource CardFrame}"

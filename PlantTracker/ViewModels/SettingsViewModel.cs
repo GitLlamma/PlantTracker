@@ -32,7 +32,7 @@ public partial class SettingsViewModel : BaseViewModel
     [RelayCommand]
     private async Task LogoutAsync()
     {
-        var confirm = await Shell.Current.DisplayAlert(
+        var confirm = await Shell.Current.DisplayAlertAsync(
             "Sign Out", "Are you sure you want to sign out?", "Sign Out", "Cancel");
 
         if (!confirm) return;

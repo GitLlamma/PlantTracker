@@ -70,6 +70,12 @@ public class PerenualPlantDetail
     [JsonPropertyName("care_level")]
     public string? CareLevel { get; set; }
 
+    [JsonPropertyName("indoor")]
+    public bool? Indoor { get; set; }
+
+    [JsonPropertyName("growth_rate")]
+    public string? GrowthRate { get; set; }
+
     [JsonPropertyName("hardiness")]
     public PerenualHardiness? Hardiness { get; set; }
 

@@ -2,9 +2,16 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:PlantTracker.ViewModels"
+             xmlns:dto="clr-namespace:PlantTracker.Shared.DTOs.Garden;assembly=PlantTracker.Shared"
+             xmlns:conv="clr-namespace:PlantTracker.Converters"
              x:Class="PlantTracker.Views.MyGardenPage"
              x:DataType="vm:MyGardenViewModel"
              Title="{Binding Title}">
+
+    <ContentPage.Resources>
+        <conv:IsNotNullConverter x:Key="IsNotNullConverter"/>
+        <conv:IsNullConverter x:Key="IsNullConverter"/>
+    </ContentPage.Resources>
 
     <Grid RowDefinitions="*">
 
@@ -26,11 +33,86 @@
 
         <!-- Plant list -->
         <CollectionView ItemsSource="{Binding Plants}"
-                        IsVisible="{Binding IsNotBusy}">
+                        IsVisible="{Binding IsNotBusy}"
+                        SelectionMode="None">
             <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <!-- Full plant card implemented in the next step -->
-                    <Label Text="placeholder" IsVisible="False"/>
+                <DataTemplate x:DataType="dto:UserPlantDto">
+                    <Border Style="{StaticResource CardFrame}" Margin="16,6">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyGardenViewModel}}, Path=GoToPlantDetailCommand}"
+                                CommandParameter="{Binding .}"/>
+                        </Border.GestureRecognizers>
+
+                        <Grid RowDefinitions="Auto,Auto" RowSpacing="10">
+
+                            <!-- Top row: thumbnail + name + watering info -->
+                            <Grid Grid.Row="0" ColumnDefinitions="72,*" ColumnSpacing="12">
+
+                                <!-- Thumbnail -->
+                                <Border Grid.Column="0"
+                                        StrokeShape="RoundRectangle 8"
+                                        HeightRequest="72" WidthRequest="72"
+                                        BackgroundColor="{StaticResource Secondary}"
+                                        Stroke="Transparent">
+                                    <Image Source="{Binding ThumbnailUrl}"
+                                           Aspect="AspectFill"
+                                           HeightRequest="72" WidthRequest="72"/>
+                                </Border>
+
+                                <!-- Info -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                    <Label Text="{Binding CommonName}"
+                                           FontAttributes="Bold"
+                                           FontSize="15"
+                                           LineBreakMode="TailTruncation"/>
+                                    <Label Text="{Binding ScientificName}"
+                                           FontSize="12"
+                                           TextColor="Gray"
+                                           FontAttributes="Italic"
+                                           LineBreakMode="TailTruncation"/>
+
+                                    <!-- Last watered — shown only when set -->
+                                    <Label FontSize="11"
+                                           TextColor="{StaticResource Primary}"
+                                           IsVisible="{Binding LastWateredAt, Converter={StaticResource IsNotNullConverter}}"
+                                           Text="{Binding LastWateredAt, StringFormat='💧 Watered {0:MMM d, yyyy}'}"/>
+                                    <Label Text="💧 Not yet watered"
+                                           FontSize="11"
+                                           TextColor="Gray"
+                                           IsVisible="{Binding LastWateredAt, Converter={StaticResource IsNullConverter}}"/>
+                                </VerticalStackLayout>
+
+                            </Grid>
+
+                            <!-- Bottom row: action buttons -->
+                            <Grid Grid.Row="1" ColumnDefinitions="*,*,Auto" ColumnSpacing="8">
+                                <Button Grid.Column="0"
+                                        Text="💧 Water"
+                                        FontSize="13"
+                                        Padding="0,8"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyGardenViewModel}}, Path=MarkWateredCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                <Button Grid.Column="1"
+                                        Text="🔔 Reminder"
+                                        FontSize="12"
+                                        Padding="0,8"
+                                        BackgroundColor="{StaticResource Secondary}"
+                                        TextColor="{StaticResource Primary}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyGardenViewModel}}, Path=EditReminderCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                <Button Grid.Column="2"
+                                        Text="🗑"
+                                        FontSize="13"
+                                        Padding="12,8"
+                                        BackgroundColor="{StaticResource Gray200}"
+                                        TextColor="{StaticResource Gray900}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyGardenViewModel}}, Path=RemovePlantCommand}"
+                                        CommandParameter="{Binding .}"/>
+                            </Grid>
+
+                        </Grid>
+                    </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>

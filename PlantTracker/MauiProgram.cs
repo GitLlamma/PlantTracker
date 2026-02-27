@@ -35,6 +35,7 @@ public static class MauiProgram
         builder.Services.AddTransient<SearchViewModel>();
         builder.Services.AddTransient<PlantDetailViewModel>();
         builder.Services.AddTransient<MyGardenViewModel>();
+        builder.Services.AddTransient<RemindersViewModel>();
         builder.Services.AddTransient<SettingsViewModel>();
 
         // ── Views ────────────────────────────────────────────────────────────
