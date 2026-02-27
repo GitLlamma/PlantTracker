@@ -14,7 +14,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Resolve the db path relative to the content root so it's always in the
 // project folder regardless of what working directory Rider launches from.
 var dbPath = Path.Combine(builder.Environment.ContentRootPath, "planttracker.db");
-Console.WriteLine($"[DB] Using database at: {dbPath}");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite($"Data Source={dbPath}"));
@@ -93,10 +92,13 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 // ── Auto-apply migrations on startup ────────────────────────────────────────
+app.Logger.LogInformation("[DB] Database path: {DbPath}", dbPath);
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
+    app.Logger.LogInformation("[DB] Migrations applied. Database is ready.");
 }
 
 // ── Middleware pipeline ──────────────────────────────────────────────────────
