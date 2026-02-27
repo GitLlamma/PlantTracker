@@ -229,8 +229,14 @@ namespace PlantTracker.Api.Data.Migrations
                     b.Property<DateTime>("AddedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("CareLevel")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("CommonName")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Cycle")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("LastWateredAt")
@@ -246,11 +252,17 @@ namespace PlantTracker.Api.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Sunlight")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ThumbnailUrl")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("UserId")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Watering")
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("WateringFrequencyDays")

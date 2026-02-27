@@ -15,5 +15,11 @@ public class UserPlantDto
     public int? WateringFrequencyDays { get; set; }
     public DateTime? LastWateredAt { get; set; }
     public DateTime AddedAt { get; set; }
+
+    // Custom plant care attributes
+    public string? Watering { get; set; }
+    public string? Sunlight { get; set; }
+    public string? Cycle { get; set; }
+    public string? CareLevel { get; set; }
 }
 

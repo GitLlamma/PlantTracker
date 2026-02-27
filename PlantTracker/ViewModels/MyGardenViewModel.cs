@@ -57,21 +57,36 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
     }
 
     [RelayCommand]
+    private static async Task AddCustomPlantAsync() =>
+        await Shell.Current.GoToAsync("AddCustomPlant");
+
+    [RelayCommand]
     private async Task GoToPlantDetailAsync(UserPlantDto plant)
     {
-        var summary = new PlantSummaryDto
+        if (plant.PlantId == 0)
         {
-            Id = plant.PlantId,
-            CommonName = plant.CommonName,
-            ScientificName = plant.ScientificName,
-            ThumbnailUrl = plant.ThumbnailUrl
-        };
+            // Custom plant — pass the full UserPlantDto so PlantDetailPage can display it
+            await Shell.Current.GoToAsync("PlantDetail", new Dictionary<string, object>
+            {
+                { "UserPlant", plant }
+            });
+        }
+        else
+        {
+            var summary = new PlantSummaryDto
+            {
+                Id = plant.PlantId,
+                CommonName = plant.CommonName,
+                ScientificName = plant.ScientificName,
+                ThumbnailUrl = plant.ThumbnailUrl
+            };
 
-        await Shell.Current.GoToAsync("PlantDetail", new Dictionary<string, object>
-        {
-            { "PlantId", plant.PlantId },
-            { "PlantSummary", summary }
-        });
+            await Shell.Current.GoToAsync("PlantDetail", new Dictionary<string, object>
+            {
+                { "PlantId", plant.PlantId },
+                { "PlantSummary", summary }
+            });
+        }
     }
 
     [RelayCommand]

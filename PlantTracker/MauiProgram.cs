@@ -37,6 +37,7 @@ public static class MauiProgram
         builder.Services.AddTransient<MyGardenViewModel>();
         builder.Services.AddTransient<RemindersViewModel>();
         builder.Services.AddTransient<SettingsViewModel>();
+        builder.Services.AddTransient<AddCustomPlantViewModel>();
 
         // ── Views ────────────────────────────────────────────────────────────
         builder.Services.AddTransient<LoginPage>();
@@ -46,6 +47,7 @@ public static class MauiProgram
         builder.Services.AddTransient<MyGardenPage>();
         builder.Services.AddTransient<RemindersPage>();
         builder.Services.AddTransient<SettingsPage>();
+        builder.Services.AddTransient<AddCustomPlantPage>();
 
         // ── Shell & App ──────────────────────────────────────────────────────
         builder.Services.AddSingleton<AppShell>();

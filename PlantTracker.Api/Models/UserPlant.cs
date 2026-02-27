@@ -21,5 +21,11 @@ public class UserPlant
     public int? WateringFrequencyDays { get; set; }
     public DateTime? LastWateredAt { get; set; }
     public DateTime AddedAt { get; set; } = DateTime.UtcNow;
+
+    // Custom plant care attributes (null for Perenual plants)
+    public string? Watering { get; set; }
+    public string? Sunlight { get; set; }
+    public string? Cycle { get; set; }
+    public string? CareLevel { get; set; }
 }
 

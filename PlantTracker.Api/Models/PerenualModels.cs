@@ -76,6 +76,12 @@ public class PerenualPlantDetail
     [JsonPropertyName("growth_rate")]
     public string? GrowthRate { get; set; }
 
+    [JsonPropertyName("flowering_season")]
+    public string? FloweringSeason { get; set; }
+
+    [JsonPropertyName("fruit_season")]
+    public string? FruitSeason { get; set; }
+
     [JsonPropertyName("hardiness")]
     public PerenualHardiness? Hardiness { get; set; }
 

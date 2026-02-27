@@ -21,6 +21,8 @@ public class PlantDetailDto
     // Planting info
     public bool? Indoor { get; set; }               // true if plant can/should be grown indoors
     public string? GrowthRate { get; set; }         // e.g. "Low", "Medium", "High"
+    public string? FloweringSeason { get; set; }    // e.g. "Spring", "Summer"
+    public string? FruitSeason { get; set; }        // e.g. "Fall", "Winter"
     public string? Dimension { get; set; }          // free-text growth dimensions / time description
 
     // Planting / zone info

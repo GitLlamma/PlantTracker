@@ -1,4 +1,4 @@
-﻿using PlantTracker.Services;
+﻿﻿using PlantTracker.Services;
 using PlantTracker.Views;
 
 namespace PlantTracker;
@@ -14,6 +14,7 @@ public partial class AppShell : Shell
 
         // Register routes for pages not in the tab bar
         Routing.RegisterRoute("PlantDetail", typeof(PlantDetailPage));
+        Routing.RegisterRoute("AddCustomPlant", typeof(AddCustomPlantPage));
     }
 
     protected override async void OnAppearing()

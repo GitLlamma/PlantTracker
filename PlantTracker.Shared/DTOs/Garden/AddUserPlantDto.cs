@@ -20,5 +20,11 @@ public class AddUserPlantDto
     public string? Notes { get; set; }
     public bool WateringReminderEnabled { get; set; }
     public int? WateringFrequencyDays { get; set; }
+
+    // Custom plant care attributes (not needed for Perenual plants, stored for display)
+    public string? Watering { get; set; }
+    public string? Sunlight { get; set; }
+    public string? Cycle { get; set; }
+    public string? CareLevel { get; set; }
 }
 

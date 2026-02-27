@@ -36,7 +36,11 @@ public class GardenController : ControllerBase
         WateringReminderEnabled = p.WateringReminderEnabled,
         WateringFrequencyDays = p.WateringFrequencyDays,
         LastWateredAt = p.LastWateredAt,
-        AddedAt = p.AddedAt
+        AddedAt = p.AddedAt,
+        Watering = p.Watering,
+        Sunlight = p.Sunlight,
+        Cycle = p.Cycle,
+        CareLevel = p.CareLevel
     };
 
     // ── GET api/garden ────────────────────────────────────────────────────────
@@ -96,7 +100,11 @@ public class GardenController : ControllerBase
             Notes = dto.Notes,
             WateringReminderEnabled = dto.WateringReminderEnabled,
             WateringFrequencyDays = dto.WateringFrequencyDays,
-            AddedAt = DateTime.UtcNow
+            AddedAt = DateTime.UtcNow,
+            Watering = dto.Watering,
+            Sunlight = dto.Sunlight,
+            Cycle = dto.Cycle,
+            CareLevel = dto.CareLevel
         };
 
         _db.UserPlants.Add(plant);

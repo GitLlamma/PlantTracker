@@ -87,6 +87,8 @@ public class PlantService
         CareLevel = p.CareLevel,
         Indoor = p.Indoor,
         GrowthRate = p.GrowthRate,
+        FloweringSeason = p.FloweringSeason,
+        FruitSeason = p.FruitSeason,
         Dimension = p.Dimension,
         HardinessZoneMin = TryParseZone(p.Hardiness?.Min),
         HardinessZoneMax = TryParseZone(p.Hardiness?.Max),

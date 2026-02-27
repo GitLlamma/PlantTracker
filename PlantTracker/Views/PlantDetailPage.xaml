@@ -95,10 +95,16 @@
                         </Border>
 
                         <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource CardFrame}">
-                            <VerticalStackLayout Spacing="2">
+                            <VerticalStackLayout Spacing="4">
                                 <Label Text="☀️ Sunlight" FontSize="12" TextColor="Gray"/>
-                                <Label Text="{Binding Detail.Sunlight[0]}" FontAttributes="Bold"
-                                       IsVisible="{Binding Detail.Sunlight, Converter={x:StaticResource IsNotNullConverter}}"/>
+                                <VerticalStackLayout Spacing="3"
+                                                     BindableLayout.ItemsSource="{Binding SunlightDescriptions}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="x:String">
+                                            <Label Text="{Binding .}" FontSize="12" LineBreakMode="WordWrap"/>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
                             </VerticalStackLayout>
                         </Border>
 
@@ -134,27 +140,27 @@
                             </VerticalStackLayout>
                         </Border>
 
-                        <!-- Growth Rate -->
+                        <!-- Growth Rate (tappable — expands detail) -->
                         <Border Grid.Column="1" Style="{StaticResource CardFrame}"
                                 IsVisible="{Binding Detail.GrowthRate, Converter={x:StaticResource IsNotNullConverter}}">
-                            <VerticalStackLayout Spacing="2">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleGrowthRateCommand}"/>
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="4">
                                 <Label Text="📈 Growth Rate" FontSize="12" TextColor="Gray"/>
                                 <Label Text="{Binding Detail.GrowthRate}" FontAttributes="Bold"/>
+                                <Label Text="Tap for details"
+                                       FontSize="10" TextColor="{StaticResource Primary}"
+                                       IsVisible="{Binding IsGrowthRateExpanded, Converter={x:StaticResource InvertedBoolConverter}}"/>
+                                <Label Text="{Binding GrowthRateDetail}"
+                                       FontSize="12"
+                                       LineBreakMode="WordWrap"
+                                       IsVisible="{Binding IsGrowthRateExpanded}"/>
                             </VerticalStackLayout>
                         </Border>
 
                     </Grid>
 
-                    <!-- Growth dimensions / time description -->
-                    <Border Style="{StaticResource CardFrame}"
-                            IsVisible="{Binding Detail.Dimension, Converter={x:StaticResource IsNotNullConverter}}">
-                        <VerticalStackLayout Spacing="4">
-                            <Label Text="📏 Growth &amp; Size" FontAttributes="Bold" FontSize="13"/>
-                            <Label Text="{Binding Detail.Dimension}"
-                                   FontSize="13"
-                                   LineBreakMode="WordWrap"/>
-                        </VerticalStackLayout>
-                    </Border>
 
                     <!-- Hardiness zones -->
                     <Border Style="{StaticResource CardFrame}"
