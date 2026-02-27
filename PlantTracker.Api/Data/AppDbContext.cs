@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PlantTracker.Api.Models;
-using PlantTracker.Api.Models;
 
 namespace PlantTracker.Api.Data;
 
