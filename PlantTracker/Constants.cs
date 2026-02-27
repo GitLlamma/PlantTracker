@@ -8,7 +8,8 @@ public static class Constants
     // Android emulator — swap to this when running on Android:
     // public const string ApiBaseUrl = "https://10.0.2.2:7036";
 #else
-    public const string ApiBaseUrl = "https://your-app.azurewebsites.net";
+    // ⚠️ Replace this with your actual Azure App Service URL before building for release
+    public const string ApiBaseUrl = "https://planttrackerapi-d8haeza3dve2e0cz.westcentralus-01.azurewebsites.net";
 #endif
 
     public const string AuthTokenKey = "auth_token";

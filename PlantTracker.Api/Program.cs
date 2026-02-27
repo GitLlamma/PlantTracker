@@ -15,9 +15,19 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // ── Database ────────────────────────────────────────────────────────────────
-        // Resolve the db path relative to the content root so it's always in the
-        // project folder regardless of what working directory Rider launches from.
-        var dbPath = Path.Combine(builder.Environment.ContentRootPath, "planttracker.db");
+        // On Azure Linux App Service, /home is persistent across deployments.
+        // On Windows dev, use the project folder as before.
+        string dbPath;
+        if (OperatingSystem.IsLinux() && Directory.Exists("/home"))
+        {
+            var dataDir = "/home/data";
+            Directory.CreateDirectory(dataDir);
+            dbPath = Path.Combine(dataDir, "planttracker.db");
+        }
+        else
+        {
+            dbPath = Path.Combine(builder.Environment.ContentRootPath, "planttracker.db");
+        }
 
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlite($"Data Source={dbPath}"));
@@ -121,7 +131,10 @@ public class Program
             });
         }
 
-        app.UseHttpsRedirection();
+        // Only redirect to HTTPS locally — on Azure, TLS is terminated at the load
+        // balancer and the app receives plain HTTP internally, so redirecting causes loops.
+        if (!OperatingSystem.IsLinux())
+            app.UseHttpsRedirection();
         app.UseCors("AllowMauiApp");
         app.UseAuthentication();
         app.UseAuthorization();
