@@ -256,6 +256,42 @@ public partial class PlantDetailViewModel : BaseViewModel
     }
 
     [RelayCommand]
+    private async Task PickWateringAsync()
+    {
+        var result = await Shell.Current.DisplayActionSheet(
+            "Watering Needs", "Cancel", null, [.. WateringOptions]);
+        if (result is not null && result != "Cancel" && WateringOptions.Contains(result))
+            EditSelectedWatering = result;
+    }
+
+    [RelayCommand]
+    private async Task PickSunlightAsync()
+    {
+        var result = await Shell.Current.DisplayActionSheet(
+            "Sunlight", "Cancel", null, [.. SunlightOptions]);
+        if (result is not null && result != "Cancel" && SunlightOptions.Contains(result))
+            EditSelectedSunlight = result;
+    }
+
+    [RelayCommand]
+    private async Task PickCycleAsync()
+    {
+        var result = await Shell.Current.DisplayActionSheet(
+            "Life Cycle", "Cancel", null, [.. CycleOptions]);
+        if (result is not null && result != "Cancel" && CycleOptions.Contains(result))
+            EditSelectedCycle = result;
+    }
+
+    [RelayCommand]
+    private async Task PickCareLevelAsync()
+    {
+        var result = await Shell.Current.DisplayActionSheet(
+            "Care Level", "Cancel", null, [.. CareLevelOptions]);
+        if (result is not null && result != "Cancel" && CareLevelOptions.Contains(result))
+            EditSelectedCareLevel = result;
+    }
+
+    [RelayCommand]
     private async Task SaveEditAsync()
     {
         if (IsBusy || UserPlantId == 0) return;

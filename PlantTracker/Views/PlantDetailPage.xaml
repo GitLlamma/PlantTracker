@@ -123,9 +123,14 @@
                                        FontSize="11" TextColor="Gray"
                                        IsVisible="{Binding Detail.WateringFrequencyDays, Converter={x:StaticResource IsNotNullConverter}}"/>
                                 <!-- Editable — custom plants only -->
-                                <Picker ItemsSource="{Binding WateringOptions}"
-                                        SelectedItem="{Binding EditSelectedWatering}"
-                                        IsVisible="{Binding IsEditableCustomPlant}"/>
+                                <Button Text="{Binding EditSelectedWatering}"
+                                        Command="{Binding PickWateringCommand}"
+                                        IsVisible="{Binding IsEditableCustomPlant}"
+                                        BackgroundColor="{StaticResource Secondary}"
+                                        TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}"
+                                        FontSize="13"
+                                        Padding="8,4"
+                                        HorizontalOptions="Start"/>
                                 <Label Text="{Binding EditWateringDescription}"
                                        FontSize="11" TextColor="Gray"
                                        IsVisible="{Binding IsEditableCustomPlant}"/>
@@ -147,9 +152,14 @@
                                     </BindableLayout.ItemTemplate>
                                 </VerticalStackLayout>
                                 <!-- Editable — custom plants only -->
-                                <Picker ItemsSource="{Binding SunlightOptions}"
-                                        SelectedItem="{Binding EditSelectedSunlight}"
-                                        IsVisible="{Binding IsEditableCustomPlant}"/>
+                                <Button Text="{Binding EditSelectedSunlight}"
+                                        Command="{Binding PickSunlightCommand}"
+                                        IsVisible="{Binding IsEditableCustomPlant}"
+                                        BackgroundColor="{StaticResource Secondary}"
+                                        TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}"
+                                        FontSize="13"
+                                        Padding="8,4"
+                                        HorizontalOptions="Start"/>
                                 <Label Text="{Binding EditSunlightDescription}"
                                        FontSize="11" TextColor="Gray"
                                        IsVisible="{Binding IsEditableCustomPlant}"/>
@@ -165,9 +175,14 @@
                                        FontAttributes="Bold"
                                        IsVisible="{Binding IsEditing, Converter={x:StaticResource InvertedBoolConverter}}"/>
                                 <!-- Editable — custom plants only -->
-                                <Picker ItemsSource="{Binding CycleOptions}"
-                                        SelectedItem="{Binding EditSelectedCycle}"
-                                        IsVisible="{Binding IsEditableCustomPlant}"/>
+                                <Button Text="{Binding EditSelectedCycle}"
+                                        Command="{Binding PickCycleCommand}"
+                                        IsVisible="{Binding IsEditableCustomPlant}"
+                                        BackgroundColor="{StaticResource Secondary}"
+                                        TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}"
+                                        FontSize="13"
+                                        Padding="8,4"
+                                        HorizontalOptions="Start"/>
                                 <Label Text="{Binding EditCycleDescription}"
                                        FontSize="11" TextColor="Gray"
                                        IsVisible="{Binding IsEditableCustomPlant}"/>
@@ -183,9 +198,14 @@
                                        FontAttributes="Bold"
                                        IsVisible="{Binding IsEditing, Converter={x:StaticResource InvertedBoolConverter}}"/>
                                 <!-- Editable — custom plants only -->
-                                <Picker ItemsSource="{Binding CareLevelOptions}"
-                                        SelectedItem="{Binding EditSelectedCareLevel}"
-                                        IsVisible="{Binding IsEditableCustomPlant}"/>
+                                <Button Text="{Binding EditSelectedCareLevel}"
+                                        Command="{Binding PickCareLevelCommand}"
+                                        IsVisible="{Binding IsEditableCustomPlant}"
+                                        BackgroundColor="{StaticResource Secondary}"
+                                        TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}"
+                                        FontSize="13"
+                                        Padding="8,4"
+                                        HorizontalOptions="Start"/>
                                 <Label Text="{Binding EditCareLevelDescription}"
                                        FontSize="11" TextColor="Gray"
                                        IsVisible="{Binding IsEditableCustomPlant}"/>
