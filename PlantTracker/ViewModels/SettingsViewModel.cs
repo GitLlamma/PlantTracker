@@ -8,16 +8,25 @@ public partial class SettingsViewModel : BaseViewModel
 {
     private readonly AuthService _auth;
     private readonly PlantService _plants;
+    private readonly NotificationService _notifications;
 
     [ObservableProperty] private string _displayName = string.Empty;
     [ObservableProperty] private string _email = string.Empty;
     [ObservableProperty] private string _zipCode = string.Empty;
+    [ObservableProperty] private TimeSpan _reminderTime;
 
-    public SettingsViewModel(AuthService auth, PlantService plants)
+    public SettingsViewModel(AuthService auth, PlantService plants, NotificationService notifications)
     {
         _auth = auth;
         _plants = plants;
+        _notifications = notifications;
         Title = "Settings";
+        ReminderTime = _notifications.GetDefaultReminderTime();
+    }
+
+    partial void OnReminderTimeChanged(TimeSpan value)
+    {
+        _notifications.SaveDefaultReminderTime(value);
     }
 
     [RelayCommand]

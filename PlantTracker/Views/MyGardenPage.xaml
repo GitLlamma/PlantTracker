@@ -28,6 +28,9 @@
         <CollectionView ItemsSource="{Binding Plants}"
                         IsVisible="{Binding IsNotBusy}"
                         SelectionMode="None">
+            <CollectionView.Footer>
+                <BoxView HeightRequest="96" Color="Transparent"/>
+            </CollectionView.Footer>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="vm:GardenPlantItem">
                     <Border Style="{StaticResource CardFrame}" Margin="16,6">

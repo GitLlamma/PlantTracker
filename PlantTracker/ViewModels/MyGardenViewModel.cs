@@ -23,15 +23,17 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
 {
     private readonly GardenService _garden;
     private readonly EditPlantViewModel _editVm;
+    private readonly NotificationService _notifications;
 
     [ObservableProperty] private bool _isEmpty;
 
     public ObservableCollection<GardenPlantItem> Plants { get; } = [];
 
-    public MyGardenViewModel(GardenService garden, EditPlantViewModel editVm)
+    public MyGardenViewModel(GardenService garden, EditPlantViewModel editVm, NotificationService notifications)
     {
         _garden = garden;
         _editVm = editVm;
+        _notifications = notifications;
         Title = "My Garden";
         WeakReferenceMessenger.Default.Register<GardenPlantAddedMessage>(this);
         WeakReferenceMessenger.Default.Register<PlantCoverPhotoChangedMessage>(this);
@@ -130,7 +132,7 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
         {
             var confirm = await Shell.Current.DisplayAlertAsync(
                 "Watering Reminder",
-                $"Disable reminder for {plant.CommonName}?",
+                $"Disable reminder for {plant.Nickname ?? plant.CommonName}?",
                 "Disable", "Cancel");
             if (!confirm) return;
 
@@ -143,14 +145,18 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
             };
             var (success, updated, _) = await _garden.UpdatePlantAsync(plant.Id, dto);
             if (success && updated is not null)
+            {
                 item.Plant = updated;
+                _notifications.Cancel(plant.Id);
+            }
         }
         else
         {
+            // Step 1 — ask how often
             var freqStr = await Shell.Current.DisplayPromptAsync(
                 "Watering Reminder",
-                $"How often does {plant.CommonName} need watering?\nEnter number of days:",
-                "Enable",
+                $"How often does {plant.Nickname ?? plant.CommonName} need watering?\nEnter number of days:",
+                "Next",
                 "Cancel",
                 placeholder: "e.g. 7",
                 keyboard: Keyboard.Numeric,
@@ -163,6 +169,27 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
                 return;
             }
 
+            // Step 2 — ask what time (default to the global setting)
+            var defaultTime = _notifications.GetDefaultReminderTime();
+            var defaultStr  = DateTime.Today.Add(defaultTime).ToString("h:mm tt");
+            var timeStr = await Shell.Current.DisplayPromptAsync(
+                "Reminder Time",
+                "What time should the reminder go off? (e.g. 9:00 AM)",
+                "Enable",
+                "Cancel",
+                placeholder: defaultStr,
+                keyboard: Keyboard.Default,
+                initialValue: defaultStr);
+
+            if (timeStr is null) return;
+
+            if (!DateTime.TryParse(timeStr, out var parsedTime))
+            {
+                await Shell.Current.DisplayAlertAsync("Invalid", "Please enter a valid time, e.g. 9:00 AM or 14:30.", "OK");
+                return;
+            }
+            var notifyAt = parsedTime.TimeOfDay;
+
             var dto = new UpdateUserPlantDto
             {
                 Notes = plant.Notes,
@@ -172,7 +199,10 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
             };
             var (success, updated, _) = await _garden.UpdatePlantAsync(plant.Id, dto);
             if (success && updated is not null)
+            {
                 item.Plant = updated;
+                await _notifications.ScheduleAsync(plant.Id, plant.Nickname ?? plant.CommonName, days, notifyAt);
+            }
         }
     }
 

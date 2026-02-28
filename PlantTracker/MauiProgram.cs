@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Plugin.LocalNotification;
 using PlantTracker.Services;
 using PlantTracker.ViewModels;
 using PlantTracker.Views;
@@ -12,6 +13,7 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
+            .UseLocalNotification()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -23,6 +25,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<GardenService>();
         builder.Services.AddSingleton<PlantService>();
         builder.Services.AddSingleton<SessionExpiredHandler>();
+        builder.Services.AddSingleton<NotificationService>();
 
         // ── HTTP client ──────────────────────────────────────────────────────
         builder.Services.AddSingleton(sp =>
