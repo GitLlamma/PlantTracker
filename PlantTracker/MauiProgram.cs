@@ -1,5 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿﻿using Microsoft.Extensions.Logging;
 using Plugin.LocalNotification;
+using Plugin.LocalNotification.AndroidOption;
 using PlantTracker.Services;
 using PlantTracker.ViewModels;
 using PlantTracker.Views;
@@ -13,7 +14,18 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
-            .UseLocalNotification()
+            .UseLocalNotification(config =>
+            {
+                config.AddAndroid(android =>
+                {
+                    android.AddChannel(new NotificationChannelRequest
+                    {
+                        Id          = "plant_watering",
+                        Name        = "Watering Reminders",
+                        Description = "Reminders to water your plants",
+                    });
+                });
+            })
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

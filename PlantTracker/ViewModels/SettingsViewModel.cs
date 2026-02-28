@@ -15,6 +15,8 @@ public partial class SettingsViewModel : BaseViewModel
     [ObservableProperty] private string _zipCode = string.Empty;
     [ObservableProperty] private TimeSpan _reminderTime;
 
+    private bool _initialized;
+
     public SettingsViewModel(AuthService auth, PlantService plants, NotificationService notifications)
     {
         _auth = auth;
@@ -22,10 +24,12 @@ public partial class SettingsViewModel : BaseViewModel
         _notifications = notifications;
         Title = "Settings";
         ReminderTime = _notifications.GetDefaultReminderTime();
+        _initialized = true;
     }
 
     partial void OnReminderTimeChanged(TimeSpan value)
     {
+        if (!_initialized) return;
         _notifications.SaveDefaultReminderTime(value);
     }
 

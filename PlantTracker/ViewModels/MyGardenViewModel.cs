@@ -13,10 +13,22 @@ namespace PlantTracker.ViewModels;
 /// Wraps a UserPlantDto with per-item busy state so that watering one plant
 /// only disables that card's button, not every Water button in the list.
 /// </summary>
-public partial class GardenPlantItem(UserPlantDto plant) : ObservableObject
+public partial class GardenPlantItem : ObservableObject
 {
-    [ObservableProperty] private UserPlantDto _plant = plant;
+    [ObservableProperty] private UserPlantDto _plant;
     [ObservableProperty] private bool _isWatering;
+    [ObservableProperty] private bool _reminderEnabled;
+
+    public GardenPlantItem(UserPlantDto plant)
+    {
+        _plant = plant;
+        _reminderEnabled = plant.WateringReminderEnabled;
+    }
+
+    partial void OnPlantChanged(UserPlantDto value)
+    {
+        ReminderEnabled = value.WateringReminderEnabled;
+    }
 }
 
 public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAddedMessage>, IRecipient<PlantCoverPhotoChangedMessage>
@@ -152,11 +164,13 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
         }
         else
         {
-            // Step 1 — ask how often
+            var defaultTime = _notifications.GetDefaultReminderTime();
+            var timeStr = DateTime.Today.Add(defaultTime).ToString("h:mm tt");
+
             var freqStr = await Shell.Current.DisplayPromptAsync(
                 "Watering Reminder",
-                $"How often does {plant.Nickname ?? plant.CommonName} need watering?\nEnter number of days:",
-                "Next",
+                $"How often does {plant.Nickname ?? plant.CommonName} need watering?\n\nReminder will fire daily at {timeStr}\n(Change the default time in Settings)\n\nEnter number of days:",
+                "Enable",
                 "Cancel",
                 placeholder: "e.g. 7",
                 keyboard: Keyboard.Numeric,
@@ -169,27 +183,6 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
                 return;
             }
 
-            // Step 2 — ask what time (default to the global setting)
-            var defaultTime = _notifications.GetDefaultReminderTime();
-            var defaultStr  = DateTime.Today.Add(defaultTime).ToString("h:mm tt");
-            var timeStr = await Shell.Current.DisplayPromptAsync(
-                "Reminder Time",
-                "What time should the reminder go off? (e.g. 9:00 AM)",
-                "Enable",
-                "Cancel",
-                placeholder: defaultStr,
-                keyboard: Keyboard.Default,
-                initialValue: defaultStr);
-
-            if (timeStr is null) return;
-
-            if (!DateTime.TryParse(timeStr, out var parsedTime))
-            {
-                await Shell.Current.DisplayAlertAsync("Invalid", "Please enter a valid time, e.g. 9:00 AM or 14:30.", "OK");
-                return;
-            }
-            var notifyAt = parsedTime.TimeOfDay;
-
             var dto = new UpdateUserPlantDto
             {
                 Notes = plant.Notes,
@@ -201,7 +194,7 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
             if (success && updated is not null)
             {
                 item.Plant = updated;
-                await _notifications.ScheduleAsync(plant.Id, plant.Nickname ?? plant.CommonName, days, notifyAt);
+                await _notifications.ScheduleAsync(plant.Id, plant.Nickname ?? plant.CommonName, days, defaultTime);
             }
         }
     }

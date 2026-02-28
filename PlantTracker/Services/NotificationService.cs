@@ -49,13 +49,11 @@ public class NotificationService
     /// </summary>
     public async Task ScheduleAsync(int userPlantId, string plantName, int frequencyDays, TimeSpan notifyAt)
     {
-        // Cancel any existing notification for this plant first.
         Cancel(userPlantId);
 
-        var granted = await RequestPermissionAsync();
+        var granted = await MainThread.InvokeOnMainThreadAsync(RequestPermissionAsync);
         if (!granted) return;
 
-        // Calculate the next fire time: today at notifyAt, or tomorrow if that's already past.
         var now    = DateTime.Now;
         var today  = now.Date.Add(notifyAt);
         var notify = today > now ? today : today.AddDays(1);
@@ -67,23 +65,25 @@ public class NotificationService
             Description    = $"{plantName} needs watering today.",
             Schedule = new NotificationRequestSchedule
             {
-                NotifyTime   = notify,
-                RepeatType   = NotificationRepeat.Daily,
+                NotifyTime        = notify,
+                RepeatType        = NotificationRepeat.TimeInterval,
+                NotifyRepeatInterval = TimeSpan.FromDays(frequencyDays),
             },
             Android = new AndroidOptions
             {
-                // Use a dedicated channel so users can silence plant reminders independently.
                 ChannelId = "plant_watering",
             }
         };
 
-        await LocalNotificationCenter.Current.Show(request);
+        await MainThread.InvokeOnMainThreadAsync(() =>
+            LocalNotificationCenter.Current.Show(request));
     }
 
     /// <summary>Cancels any scheduled notification for the given plant.</summary>
     public void Cancel(int userPlantId)
     {
-        LocalNotificationCenter.Current.Cancel(userPlantId);
+        MainThread.BeginInvokeOnMainThread(() =>
+            LocalNotificationCenter.Current.Cancel(userPlantId));
     }
 }
 

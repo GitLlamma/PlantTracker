@@ -33,7 +33,7 @@
             <VerticalStackLayout Spacing="4">
                 <Label Text="Default reminder time" FontSize="12" TextColor="Gray"/>
                 <Label Text="New reminders will default to this time." FontSize="11" TextColor="Gray"/>
-                <TimePicker Time="{Binding ReminderTime}"
+                <TimePicker Time="{Binding ReminderTime, Mode=TwoWay}"
                             FontSize="16"/>
             </VerticalStackLayout>
 

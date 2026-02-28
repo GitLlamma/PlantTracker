@@ -105,7 +105,7 @@
                                         CommandParameter="{Binding .}">
                                     <Button.Triggers>
                                         <DataTrigger TargetType="Button"
-                                                     Binding="{Binding Plant.WateringReminderEnabled}"
+                                                     Binding="{Binding ReminderEnabled}"
                                                      Value="True">
                                             <Setter Property="Text" Value="🔔"/>
                                         </DataTrigger>
