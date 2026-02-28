@@ -8,12 +8,15 @@ public class PlantService
 {
     private readonly HttpClient _http;
     private readonly AuthService _auth;
+    private readonly Dictionary<string, List<PlantSummaryDto>> _searchCache = new(StringComparer.OrdinalIgnoreCase);
 
     public PlantService(HttpClient http, AuthService auth)
     {
         _http = http;
         _auth = auth;
     }
+
+    public void ClearCache() => _searchCache.Clear();
 
     private async Task SetAuthHeaderAsync()
     {
@@ -24,12 +27,18 @@ public class PlantService
 
     public async Task<List<PlantSummaryDto>> SearchAsync(string query)
     {
+        var key = query.Trim();
+        if (_searchCache.TryGetValue(key, out var cached))
+            return cached;
+
         await SetAuthHeaderAsync();
         try
         {
             var results = await _http.GetFromJsonAsync<List<PlantSummaryDto>>(
-                $"api/plants/search?q={Uri.EscapeDataString(query)}");
-            return results ?? [];
+                $"api/plants/search?q={Uri.EscapeDataString(key)}");
+            var list = results ?? [];
+            _searchCache[key] = list;
+            return list;
         }
         catch { return []; }
     }

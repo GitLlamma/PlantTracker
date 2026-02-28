@@ -9,6 +9,7 @@ namespace PlantTracker.ViewModels;
 public partial class SearchViewModel : BaseViewModel
 {
     private readonly PlantService _plants;
+    private CancellationTokenSource? _debounceCts;
 
     [ObservableProperty] private string _searchQuery = string.Empty;
     [ObservableProperty] private bool _hasSearched;
@@ -20,6 +21,31 @@ public partial class SearchViewModel : BaseViewModel
     {
         _plants = plants;
         Title = "Search Plants";
+    }
+
+    partial void OnSearchQueryChanged(string value)
+    {
+        _debounceCts?.Cancel();
+        _debounceCts = new CancellationTokenSource();
+        var token = _debounceCts.Token;
+
+        if (value.Length <= 2)
+        {
+            Results.Clear();
+            HasSearched = false;
+            NoResults = false;
+            return;
+        }
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(400, token);
+                await MainThread.InvokeOnMainThreadAsync(() => SearchCommand.ExecuteAsync(null));
+            }
+            catch (OperationCanceledException) { }
+        }, token);
     }
 
     [RelayCommand(CanExecute = nameof(IsNotBusy))]

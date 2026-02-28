@@ -7,14 +7,16 @@ namespace PlantTracker.ViewModels;
 public partial class SettingsViewModel : BaseViewModel
 {
     private readonly AuthService _auth;
+    private readonly PlantService _plants;
 
     [ObservableProperty] private string _displayName = string.Empty;
     [ObservableProperty] private string _email = string.Empty;
     [ObservableProperty] private string _zipCode = string.Empty;
 
-    public SettingsViewModel(AuthService auth)
+    public SettingsViewModel(AuthService auth, PlantService plants)
     {
         _auth = auth;
+        _plants = plants;
         Title = "Settings";
     }
 
@@ -37,6 +39,7 @@ public partial class SettingsViewModel : BaseViewModel
 
         if (!confirm) return;
 
+        _plants.ClearCache();
         await _auth.LogoutAsync();
         await Shell.Current.GoToAsync("//Login");
     }

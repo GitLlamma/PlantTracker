@@ -10,18 +10,11 @@
     <Grid RowDefinitions="Auto,*">
 
         <!-- Search bar -->
-        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="16,12" ColumnSpacing="8">
-            <Entry Grid.Column="0"
-                   Placeholder="Search plants (e.g. tomato, rose...)"
+        <Grid Grid.Row="0" Padding="16,12">
+            <Entry Placeholder="Search plants (e.g. tomato, rose...)"
                    Text="{Binding SearchQuery}"
                    ReturnCommand="{Binding SearchCommand}"
                    ReturnType="Search"/>
-            <Button Grid.Column="1"
-                    Text="Search"
-                    Command="{Binding SearchCommand}"
-                    IsEnabled="{Binding IsNotBusy}"
-                    Style="{StaticResource PrimaryButton}"
-                    Padding="12,10"/>
         </Grid>
 
         <!-- Loading -->
