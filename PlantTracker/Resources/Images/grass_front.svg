@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 80" width="400" height="80" preserveAspectRatio="none">
+
+  <!-- Solid ground fill -->
+  <rect x="0" y="42" width="400" height="38" fill="#2E7D32"/>
+
+  <!-- Back row — darkest, tallest tips, rendered first so front blades sit on top -->
+  <g fill="#1B5E20">
+    <polygon points="8,42   13,6   18,42"/>
+    <polygon points="28,42  33,14  38,42"/>
+    <polygon points="50,42  55,0   61,42"/>
+    <polygon points="72,42  77,18  83,42"/>
+    <polygon points="95,42  99,2   105,42"/>
+    <polygon points="118,42  123,10  129,42"/>
+    <polygon points="142,42  146,0   152,42"/>
+    <polygon points="163,42  168,20  174,42"/>
+    <polygon points="185,42  190,6   196,42"/>
+    <polygon points="210,42  214,0   220,42"/>
+    <polygon points="232,42  237,12  243,42"/>
+    <polygon points="255,42  260,2   266,42"/>
+    <polygon points="278,42  282,22  288,42"/>
+    <polygon points="300,42  305,0   311,42"/>
+    <polygon points="322,42  326,8   332,42"/>
+    <polygon points="344,42  349,4   355,42"/>
+    <polygon points="366,42  371,16  377,42"/>
+    <polygon points="388,42  392,2   398,42"/>
+  </g>
+
+  <!-- Mid back blades -->
+  <g fill="#2E7D32">
+    <polygon points="18,42  23,8   28,42"/>
+    <polygon points="40,42  45,24  51,42"/>
+    <polygon points="62,42  67,4   73,42"/>
+    <polygon points="86,42  90,0   96,42"/>
+    <polygon points="107,42  112,14  118,42"/>
+    <polygon points="130,42  135,2   141,42"/>
+    <polygon points="153,42  158,26  163,42"/>
+    <polygon points="175,42  180,8   185,42"/>
+    <polygon points="198,42  202,0   208,42"/>
+    <polygon points="222,42  227,18  232,42"/>
+    <polygon points="245,42  250,4   255,42"/>
+    <polygon points="268,42  272,12  278,42"/>
+    <polygon points="290,42  295,0   300,42"/>
+    <polygon points="313,42  317,20  322,42"/>
+    <polygon points="334,42  339,6   344,42"/>
+    <polygon points="357,42  362,2   367,42"/>
+    <polygon points="378,42  383,14  388,42"/>
+  </g>
+
+  <!-- Front row of grass blades — rendered on top of the last card -->
+  <g fill="#388E3C">
+    <polygon points="0,44   6,18   12,44"/>
+    <polygon points="22,44  27,26  33,44"/>
+    <polygon points="44,44  50,12  56,44"/>
+    <polygon points="67,44  72,24  78,44"/>
+    <polygon points="88,44  94,7   100,44"/>
+    <polygon points="110,44  115,20  121,44"/>
+    <polygon points="132,44  138,28  144,44"/>
+    <polygon points="155,44  160,10  166,44"/>
+    <polygon points="177,44  182,22  188,44"/>
+    <polygon points="200,44  205,15  211,44"/>
+    <polygon points="222,44  228,26  234,44"/>
+    <polygon points="245,44  250,8   256,44"/>
+    <polygon points="267,44  272,21  278,44"/>
+    <polygon points="290,44  295,29  301,44"/>
+    <polygon points="312,44  317,11  323,44"/>
+    <polygon points="334,44  339,24  345,44"/>
+    <polygon points="356,44  361,14  367,44"/>
+    <polygon points="378,44  383,20  389,44"/>
+    <polygon points="393,44  397,6   400,44"/>
+  </g>
+
+  <!-- Brightest front fringe — tallest blades, most prominent -->
+  <g fill="#43A047">
+    <polygon points="11,44  16,2   22,44"/>
+    <polygon points="56,44  61,16  67,44"/>
+    <polygon points="100,44  106,4  112,44"/>
+    <polygon points="144,44  149,18  155,44"/>
+    <polygon points="188,44  194,1  200,44"/>
+    <polygon points="234,44  239,13  245,44"/>
+    <polygon points="278,44  284,5   290,44"/>
+    <polygon points="323,44  328,19  334,44"/>
+    <polygon points="367,44  372,7   378,44"/>
+  </g>
+
+</svg>
+

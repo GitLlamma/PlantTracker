@@ -24,12 +24,21 @@
             <Label Text="Search for plants, or tap + to add a custom one." FontSize="14" TextColor="Gray" HorizontalOptions="Center"/>
         </VerticalStackLayout>
 
-        <!-- Plant list -->
+        <!-- Back grass blades — declared before CollectionView so they sit behind it -->
+        <Image Source="grass_front.svg"
+               Aspect="AspectFill"
+               HeightRequest="120"
+               VerticalOptions="End"
+               InputTransparent="True"/>
+
+        <!-- Plant list — scrolls over the back grass; footer spacer lets last card clear the front grass -->
         <CollectionView ItemsSource="{Binding Plants}"
                         IsVisible="{Binding IsNotBusy}"
                         SelectionMode="None">
             <CollectionView.Footer>
-                <BoxView HeightRequest="96" Color="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}"/>
+                <!-- Matches the height of the front grass overlay so the last card
+                     scrolls fully above it before the list ends -->
+                <BoxView HeightRequest="120" Color="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}"/>
             </CollectionView.Footer>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="vm:GardenPlantItem">
@@ -116,6 +125,14 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
+        <!-- Front grass blades + ground — declared after CollectionView so they render on top -->
+        <VerticalStackLayout Spacing="0" VerticalOptions="End" InputTransparent="True">
+            <Image Source="grass_front.svg"
+                   Aspect="AspectFill"
+                   HeightRequest="80"/>
+            <BoxView HeightRequest="40" Color="#2E7D32"/>
+        </VerticalStackLayout>
 
         <!-- Loading -->
         <ActivityIndicator IsRunning="{Binding IsBusy}"
