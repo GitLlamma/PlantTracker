@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PlantTracker.Services;
+using PlantTracker.Shared.DTOs.Auth;
 
 namespace PlantTracker.ViewModels;
 
@@ -42,6 +43,25 @@ public partial class SettingsViewModel : BaseViewModel
         DisplayName = user.DisplayName;
         Email = user.Email;
         ZipCode = user.ZipCode;
+    }
+
+    [RelayCommand]
+    private async Task SaveZipCodeAsync()
+    {
+        var zip = ZipCode.Trim();
+        if (string.IsNullOrWhiteSpace(zip)) return;
+
+        IsBusy = true;
+        try
+        {
+            var (success, error) = await _auth.UpdateUserAsync(new UpdateUserDto { ZipCode = zip });
+            if (!success)
+                await Shell.Current.DisplayAlertAsync("Error", error ?? "Could not save zip code.", "OK");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     [RelayCommand]

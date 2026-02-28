@@ -90,6 +90,32 @@ public class AuthService
         }
     }
 
+    public async Task<(bool Success, string? Error)> UpdateUserAsync(UpdateUserDto dto)
+    {
+        try
+        {
+            var response = await _http.PutAsJsonAsync("api/auth/me", dto);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                return (false, error);
+            }
+
+            var updated = await response.Content.ReadFromJsonAsync<UserDto>();
+            if (updated is null) return (false, "Invalid response from server.");
+
+            // Keep SecureStorage in sync
+            await SecureStorage.Default.SetAsync(Constants.UserDisplayNameKey, updated.DisplayName);
+            await SecureStorage.Default.SetAsync(Constants.UserZipCodeKey, updated.ZipCode);
+            return (true, null);
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.InnerException?.Message ?? ex.Message);
+        }
+    }
+
     public async Task LogoutAsync()
     {
         SecureStorage.Default.Remove(Constants.AuthTokenKey);
