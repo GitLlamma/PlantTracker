@@ -14,6 +14,9 @@
 
     <Color x:Key="SkyBlueLight">#87CEEB</Color>
     <Color x:Key="SkyBlueDark">#1a3a52</Color>
+    <!-- Semi-transparent card backgrounds so clouds show through slightly -->
+    <Color x:Key="CardBackgroundLight">#DDFFFFFF</Color>
+    <Color x:Key="CardBackgroundDark">#DD1f1f1f</Color>
 
     <Color x:Key="White">White</Color>
     <Color x:Key="Black">Black</Color>

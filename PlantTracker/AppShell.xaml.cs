@@ -72,6 +72,8 @@ public partial class AppShell : Shell
         {
             if (!await _auth.IsLoggedInAsync())
                 await GoToAsync("//Login");
+            else
+                await GoToAsync("//MyGarden");
         }
         catch (Exception ex)
         {

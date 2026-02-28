@@ -163,14 +163,14 @@
                            VerticalOptions="Center"
                            HorizontalOptions="Center"/>
 
-        <!-- Floating Add Custom Plant button -->
+        <!-- Floating Add Custom Plant button — centred on the ground section of the grass -->
         <Button Text="+"
                 Command="{Binding AddCustomPlantCommand}"
                 FontSize="28" FontAttributes="Bold"
                 WidthRequest="56" HeightRequest="56"
                 CornerRadius="28" Padding="0"
                 VerticalOptions="End" HorizontalOptions="End"
-                Margin="0,0,20,20">
+                Margin="0,0,20,12">
             <Button.Shadow>
                 <Shadow Brush="{StaticResource Gray900Brush}" Offset="0,4" Radius="8" Opacity="0.3"/>
             </Button.Shadow>

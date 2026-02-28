@@ -12,30 +12,20 @@
         <ShellContent
             Title="Search"
             Route="Search"
-            ContentTemplate="{DataTemplate views:SearchPage}">
-            <ShellContent.Icon>
-                <FontImageSource Glyph="&#x1F50D;" FontFamily="OpenSansRegular" Size="22"/>
-            </ShellContent.Icon>
-        </ShellContent>
+            Icon="tab_search.svg"
+            ContentTemplate="{DataTemplate views:SearchPage}"/>
 
         <ShellContent
             Title="My Garden"
             Route="MyGarden"
-            ContentTemplate="{DataTemplate views:MyGardenPage}">
-            <ShellContent.Icon>
-                <FontImageSource Glyph="&#x1FAB4;" FontFamily="OpenSansRegular" Size="22"/>
-            </ShellContent.Icon>
-        </ShellContent>
-
+            Icon="tab_garden.svg"
+            ContentTemplate="{DataTemplate views:MyGardenPage}"/>
 
         <ShellContent
             Title="Settings"
             Route="Settings"
-            ContentTemplate="{DataTemplate views:SettingsPage}">
-            <ShellContent.Icon>
-                <FontImageSource Glyph="&#x2699;" FontFamily="OpenSansRegular" Size="22"/>
-            </ShellContent.Icon>
-        </ShellContent>
+            Icon="tab_settings.svg"
+            ContentTemplate="{DataTemplate views:SettingsPage}"/>
 
     </TabBar>
 
