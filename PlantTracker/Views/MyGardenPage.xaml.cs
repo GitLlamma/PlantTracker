@@ -21,8 +21,20 @@ public partial class MyGardenPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _vm.LoadGardenCommand.ExecuteAsync(null);
-        UpdateFooterVisibility();
+
+        if (_vm.Plants.Count > 0)
+        {
+            // Cache already populated — fire load in background, return immediately
+            _ = _vm.LoadGardenCommand.ExecuteAsync(null);
+        }
+        else
+        {
+            // First load — wait for data before showing the page
+            await _vm.LoadGardenCommand.ExecuteAsync(null);
+        }
+
+        // Defer footer check so it doesn't force a layout pass synchronously
+        Dispatcher.Dispatch(UpdateFooterVisibility);
     }
 
     protected override void OnSizeAllocated(double width, double height)

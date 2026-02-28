@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using PlantTracker.Shared.DTOs.Garden;
 
 namespace PlantTracker.Services;
@@ -9,17 +10,62 @@ public class GardenService
     private readonly HttpClient _http;
     private readonly AuthService _auth;
 
-    // In-memory cache — populated on first load, kept in sync by all mutating operations.
     private List<UserPlantDto>? _cache;
+
+    // Path to the on-disk cache file in the app's private data directory
+    private static string CacheFilePath =>
+        Path.Combine(FileSystem.AppDataDirectory, "garden_cache.json");
 
     public GardenService(HttpClient http, AuthService auth)
     {
         _http = http;
         _auth = auth;
+        LoadDiskCache();
     }
 
-    /// <summary>Clears the garden cache — call on logout.</summary>
-    public void ClearCache() => _cache = null;
+    /// <summary>
+    /// Synchronously reads the disk cache at startup so GetCachedPlants()
+    /// returns data immediately on the first call, even after a cold start.
+    /// </summary>
+    private void LoadDiskCache()
+    {
+        try
+        {
+            if (!File.Exists(CacheFilePath)) return;
+            var json = File.ReadAllText(CacheFilePath);
+            _cache = JsonSerializer.Deserialize<List<UserPlantDto>>(json);
+        }
+        catch
+        {
+            _cache = null;
+        }
+    }
+
+    /// <summary>Persists the current cache to disk on a background thread.</summary>
+    private void SaveDiskCache()
+    {
+        var snapshot = _cache;
+        if (snapshot is null) return;
+        _ = Task.Run(() =>
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(snapshot);
+                File.WriteAllText(CacheFilePath, json);
+            }
+            catch { /* non-fatal */ }
+        });
+    }
+
+    /// <summary>Clears both the in-memory and on-disk cache — call on logout.</summary>
+    public void ClearCache()
+    {
+        _cache = null;
+        try { File.Delete(CacheFilePath); } catch { }
+    }
+
+    /// <summary>Returns the current cache synchronously — empty list if not yet loaded.</summary>
+    public List<UserPlantDto> GetCachedPlants() => _cache ?? [];
 
     private async Task SetAuthHeaderAsync()
     {
@@ -55,6 +101,8 @@ public class GardenService
             await SetAuthHeaderAsync();
             var result = await _http.GetFromJsonAsync<List<UserPlantDto>>("api/garden");
             _cache = result ?? [];
+            // Persist to disk so the next cold start is instant
+            SaveDiskCache();
         }
         catch
         {
@@ -77,6 +125,7 @@ public class GardenService
             {
                 _cache ??= [];
                 _cache.Add(plant);
+                SaveDiskCache();
             }
             return (true, plant, null);
         }
@@ -99,6 +148,7 @@ public class GardenService
             {
                 var idx = _cache.FindIndex(p => p.Id == id);
                 if (idx >= 0) _cache[idx] = plant;
+                SaveDiskCache();
             }
             return (true, plant, null);
         }
@@ -113,7 +163,10 @@ public class GardenService
         await SetAuthHeaderAsync();
         var response = await _http.DeleteAsync($"api/garden/{id}");
         if (response.IsSuccessStatusCode)
+        {
             _cache?.RemoveAll(p => p.Id == id);
+            SaveDiskCache();
+        }
         return response.IsSuccessStatusCode;
     }
 
@@ -127,6 +180,7 @@ public class GardenService
         {
             var idx = _cache.FindIndex(p => p.Id == id);
             if (idx >= 0) _cache[idx] = plant;
+            SaveDiskCache();
         }
         return (true, plant);
     }
@@ -183,7 +237,11 @@ public class GardenService
             if (response.IsSuccessStatusCode && _cache is not null)
             {
                 var cached = _cache.FirstOrDefault(p => p.Id == userPlantId);
-                if (cached is not null) cached.ThumbnailUrl = imageData;
+                if (cached is not null)
+                {
+                    cached.ThumbnailUrl = imageData;
+                    SaveDiskCache();
+                }
             }
             return response.IsSuccessStatusCode;
         }

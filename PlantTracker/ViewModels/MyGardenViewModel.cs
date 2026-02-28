@@ -84,45 +84,74 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
 
         var hasCachedData = Plants.Count > 0;
 
-        // Only show the loading spinner on the very first load (no data visible yet)
+        // First load — show spinner and wait for network
         if (!hasCachedData)
+        {
             IsBusy = true;
-
-        try
-        {
-            // GetGardenAsync returns cache immediately if available, then refreshes in background.
-            // On first load it waits for the network. Either way we apply whatever comes back.
-            var plants = await _garden.GetGardenAsync();
-            ApplyPlants(plants);
-
-            // If cache was returned instantly, the background refresh is already running.
-            // Subscribe to get the refreshed data once it lands and silently update the UI.
-            if (hasCachedData)
+            try
             {
-                _ = Task.Run(async () =>
-                {
-                    // Small delay to let RefreshCacheAsync finish
-                    await Task.Delay(100);
-                    var refreshed = await _garden.GetGardenAsync();
-                    await MainThread.InvokeOnMainThreadAsync(() => ApplyPlants(refreshed));
-                });
+                var plants = await _garden.GetGardenAsync();
+                ApplyDiff(plants);
             }
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlertAsync("Error", ex.Message, "OK");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+            return;
         }
-        catch (Exception ex)
+
+        // Cache hit — apply instantly with no spinner, then refresh in background
+        ApplyDiff(_garden.GetCachedPlants());
+
+        _ = Task.Run(async () =>
         {
-            await Shell.Current.DisplayAlertAsync("Error", ex.Message, "OK");
-        }
-        finally
-        {
-            IsBusy = false;
-        }
+            try
+            {
+                await _garden.RefreshCacheAsync();
+                var refreshed = _garden.GetCachedPlants();
+                await MainThread.InvokeOnMainThreadAsync(() => ApplyDiff(refreshed));
+            }
+            catch { /* silent — cache still valid */ }
+        });
     }
 
-    private void ApplyPlants(List<UserPlantDto> plants)
+    /// <summary>
+    /// Applies a new plant list to the ObservableCollection without clearing it.
+    /// Only adds, removes, and updates items that actually changed — avoiding a full
+    /// CollectionView re-layout on every navigation to the tab.
+    /// </summary>
+    private void ApplyDiff(List<UserPlantDto> incoming)
     {
-        Plants.Clear();
-        foreach (var p in plants)
-            Plants.Add(new GardenPlantItem(p));
+        // Remove plants no longer in the list
+        var incomingIds = incoming.Select(p => p.Id).ToHashSet();
+        for (var i = Plants.Count - 1; i >= 0; i--)
+        {
+            if (!incomingIds.Contains(Plants[i].Plant.Id))
+                Plants.RemoveAt(i);
+        }
+
+        // Add or update
+        for (var i = 0; i < incoming.Count; i++)
+        {
+            var dto = incoming[i];
+            var existing = Plants.FirstOrDefault(p => p.Plant.Id == dto.Id);
+
+            if (existing is null)
+            {
+                // New plant — insert at correct position
+                Plants.Insert(Math.Min(i, Plants.Count), new GardenPlantItem(dto));
+            }
+            else if (existing.Plant != dto)
+            {
+                // Updated plant — reassign to trigger bindings
+                existing.Plant = dto;
+            }
+        }
+
         IsEmpty = Plants.Count == 0;
     }
 
