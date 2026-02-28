@@ -25,9 +25,13 @@ public partial class AppShell : Shell
 
     // Tab routes as defined in AppShell.xaml
     private static readonly HashSet<string> TabRoutes = ["//Search", "//MyGarden", "//Reminders", "//Settings"];
+    private bool _isHandlingTabSwitch;
 
     private void OnShellNavigating(object? sender, ShellNavigatingEventArgs e)
     {
+        // Guard against re-entrant calls triggered by our own GoToAsync below
+        if (_isHandlingTabSwitch) return;
+
         // If navigating to a root tab route while a sub-page is on the stack,
         // cancel the default navigation and replace it with a direct absolute
         // GoToAsync — this clears the stack atomically with no flash.
@@ -35,7 +39,9 @@ public partial class AppShell : Shell
             && Navigation.NavigationStack.Count > 1)
         {
             e.Cancel();
-            _ = GoToAsync(e.Target.Location.OriginalString, false);
+            _isHandlingTabSwitch = true;
+            _ = GoToAsync(e.Target.Location.OriginalString, false)
+                .ContinueWith(_ => _isHandlingTabSwitch = false);
         }
     }
 
