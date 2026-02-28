@@ -265,26 +265,31 @@ public partial class PlantDetailViewModel : BaseViewModel
     {
         if (value is null) return;
 
-        // Custom plant (PlantId == 0): build a PlantDetailDto from the saved UserPlantDto
+        // Always mark as in-garden so the edit button becomes visible immediately
         IsInGarden = true;
         UserPlantId = value.Id;
         OnPropertyChanged(nameof(IsInGardenAndSaved));
-        Title = value.CommonName;
-        Detail = new PlantDetailDto
+
+        // For custom plants (PlantId == 0) there is no Perenual detail to load,
+        // so build the PlantDetailDto directly from the saved UserPlantDto.
+        // For Perenual plants, leave Detail alone — LoadDetailAsync will populate it.
+        if (value.PlantId == 0)
         {
-            Id = 0,
-            CommonName = value.CommonName,
-            ScientificName = value.ScientificName,
-            ImageUrl = value.ThumbnailUrl,
-            Description = value.Notes,
-            Watering = value.Watering,
-            WateringFrequencyDays = value.WateringFrequencyDays,
-            Sunlight = string.IsNullOrEmpty(value.Sunlight)
-                ? []
-                : [value.Sunlight],
-            Cycle = value.Cycle,
-            CareLevel = value.CareLevel
-        };
+            Title = value.CommonName;
+            Detail = new PlantDetailDto
+            {
+                Id = 0,
+                CommonName = value.CommonName,
+                ScientificName = value.ScientificName,
+                ImageUrl = value.ThumbnailUrl,
+                Description = value.Notes,
+                Watering = value.Watering,
+                WateringFrequencyDays = value.WateringFrequencyDays,
+                Sunlight = string.IsNullOrEmpty(value.Sunlight) ? [] : [value.Sunlight],
+                Cycle = value.Cycle,
+                CareLevel = value.CareLevel
+            };
+        }
     }
 
     partial void OnDetailChanged(PlantDetailDto? value)

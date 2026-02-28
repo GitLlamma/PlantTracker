@@ -115,7 +115,8 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
             await Shell.Current.GoToAsync("PlantDetail", new Dictionary<string, object>
             {
                 { "PlantId", item.Plant.PlantId },
-                { "PlantSummary", summary }
+                { "PlantSummary", summary },
+                { "UserPlant", item.Plant }
             });
         }
     }

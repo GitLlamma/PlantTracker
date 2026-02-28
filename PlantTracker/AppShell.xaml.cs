@@ -20,18 +20,22 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("PlantDiseases", typeof(PlantDiseasesPage));
         Routing.RegisterRoute("PlantGallery", typeof(PlantGalleryPage));
 
-        Navigated += OnShellNavigated;
+        Navigating += OnShellNavigating;
     }
 
-    private void OnShellNavigated(object? sender, ShellNavigatedEventArgs e)
+    // Tab routes as defined in AppShell.xaml
+    private static readonly HashSet<string> TabRoutes = ["//Search", "//MyGarden", "//Reminders", "//Settings"];
+
+    private void OnShellNavigating(object? sender, ShellNavigatingEventArgs e)
     {
-        // When the user switches tabs, pop any pushed pages back to the tab root.
-        if (e.Source == ShellNavigationSource.ShellSectionChanged ||
-            e.Source == ShellNavigationSource.ShellItemChanged)
+        // If navigating to a root tab route while a sub-page is on the stack,
+        // cancel the default navigation and replace it with a direct absolute
+        // GoToAsync — this clears the stack atomically with no flash.
+        if (TabRoutes.Contains(e.Target.Location.OriginalString)
+            && Navigation.NavigationStack.Count > 1)
         {
-            var nav = Current?.Navigation;
-            if (nav != null && nav.NavigationStack.Count > 1)
-                nav.PopToRootAsync(animated: false);
+            e.Cancel();
+            _ = GoToAsync(e.Target.Location.OriginalString, false);
         }
     }
 
