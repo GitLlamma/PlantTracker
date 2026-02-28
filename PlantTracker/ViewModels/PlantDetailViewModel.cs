@@ -29,6 +29,7 @@ public partial class PlantDetailViewModel : BaseViewModel
     // ── Inline edit state ────────────────────────────────────────────────────
     [ObservableProperty] private bool _isEditing;
     [ObservableProperty] private string _editNotes = string.Empty;
+    [ObservableProperty] private string _editNickname = string.Empty;
     [ObservableProperty] private string _editCommonName = string.Empty;
     [ObservableProperty] private string _editScientificName = string.Empty;
     [ObservableProperty] private string _editSelectedWatering = string.Empty;
@@ -95,6 +96,9 @@ public partial class PlantDetailViewModel : BaseViewModel
 
     /// <summary>True when the plant is in the garden and has a known DB row ID — gallery button visible.</summary>
     public bool IsInGardenAndSaved => IsInGarden && UserPlantId > 0;
+
+    /// <summary>The user's personal nickname for this plant, if set.</summary>
+    public string? Nickname => UserPlant?.Nickname;
 
     /// <summary>Human-readable growth rate detail built from GrowthRate, Cycle, FloweringSeason, FruitSeason.</summary>
     public string GrowthRateDetail
@@ -193,6 +197,7 @@ public partial class PlantDetailViewModel : BaseViewModel
         EditCommonName        = string.Empty;
         EditScientificName    = string.Empty;
         EditNotes             = string.Empty;
+        EditNickname          = string.Empty;
         // Set to empty string so no picker item is selected — avoids the MAUI
         // bug where setting SelectedItem to a valid value triggers the dropdown
         // to open even when the Picker is IsVisible=false.
@@ -236,14 +241,15 @@ public partial class PlantDetailViewModel : BaseViewModel
     [RelayCommand]
     private void BeginEdit()
     {
-        // Populate edit fields from current Detail
-        EditCommonName       = Detail?.CommonName ?? string.Empty;
-        EditScientificName   = Detail?.ScientificName ?? string.Empty;
-        EditNotes            = Detail?.Description ?? string.Empty;
-        EditSelectedWatering = WateringOptions.Contains(Detail?.Watering ?? "") ? Detail!.Watering! : "Average";
-        EditSelectedSunlight = SunlightOptions.Contains(Detail?.Sunlight?.FirstOrDefault() ?? "")
-                                ? Detail!.Sunlight!.First() : "Full Sun";
-        EditSelectedCycle    = CycleOptions.Contains(Detail?.Cycle ?? "") ? Detail!.Cycle! : "Perennial";
+        // Populate edit fields from current Detail / UserPlant
+        EditCommonName        = Detail?.CommonName ?? string.Empty;
+        EditScientificName    = Detail?.ScientificName ?? string.Empty;
+        EditNotes             = Detail?.Description ?? string.Empty;
+        EditNickname          = UserPlant?.Nickname ?? string.Empty;
+        EditSelectedWatering  = WateringOptions.Contains(Detail?.Watering ?? "") ? Detail!.Watering! : "Average";
+        EditSelectedSunlight  = SunlightOptions.Contains(Detail?.Sunlight?.FirstOrDefault() ?? "")
+                                 ? Detail!.Sunlight!.First() : "Full Sun";
+        EditSelectedCycle     = CycleOptions.Contains(Detail?.Cycle ?? "") ? Detail!.Cycle! : "Perennial";
         EditSelectedCareLevel = CareLevelOptions.Contains(Detail?.CareLevel ?? "") ? Detail!.CareLevel! : "Medium";
         IsEditing = true;
     }
@@ -306,6 +312,7 @@ public partial class PlantDetailViewModel : BaseViewModel
             var dto = new UpdateUserPlantDto
             {
                 Notes                  = string.IsNullOrWhiteSpace(EditNotes) ? null : EditNotes.Trim(),
+                Nickname               = string.IsNullOrWhiteSpace(EditNickname) ? null : EditNickname.Trim(),
                 WateringReminderEnabled = existing?.WateringReminderEnabled ?? false,
                 WateringFrequencyDays  = existing?.WateringFrequencyDays,
                 LastWateredAt          = existing?.LastWateredAt,
@@ -325,21 +332,25 @@ public partial class PlantDetailViewModel : BaseViewModel
                 // Reflect changes in the Detail displayed on-screen
                 if (Detail is not null)
                 {
-                    Detail.Description     = updated.Notes;
-                    Detail.CommonName      = updated.CommonName;
-                    Detail.ScientificName  = updated.ScientificName;
-                    Detail.Watering        = updated.Watering;
-                    Detail.Sunlight        = string.IsNullOrEmpty(updated.Sunlight) ? [] : [updated.Sunlight];
-                    Detail.Cycle           = updated.Cycle;
-                    Detail.CareLevel       = updated.CareLevel;
-                    // Re-fire Detail changed notifications
+                    Detail.Description    = updated.Notes;
+                    Detail.CommonName     = updated.CommonName;
+                    Detail.ScientificName = updated.ScientificName;
+                    Detail.Watering       = updated.Watering;
+                    Detail.Sunlight       = string.IsNullOrEmpty(updated.Sunlight) ? [] : [updated.Sunlight];
+                    Detail.Cycle          = updated.Cycle;
+                    Detail.CareLevel      = updated.CareLevel;
                     OnDetailChanged(Detail);
                 }
+
+                // Reflect nickname back onto the UserPlant so BeginEdit picks it up next time
+                if (UserPlant is not null)
+                    UserPlant.Nickname = updated.Nickname;
+                OnPropertyChanged(nameof(Nickname));
 
                 Title = updated.CommonName;
                 IsEditing = false;
                 ClearEditFields();
-                WeakReferenceMessenger.Default.Send(new GardenPlantAddedMessage()); // refreshes My Garden list
+                WeakReferenceMessenger.Default.Send(new GardenPlantAddedMessage());
             }
             else
             {
@@ -360,6 +371,7 @@ public partial class PlantDetailViewModel : BaseViewModel
         IsInGarden = true;
         UserPlantId = value.Id;
         OnPropertyChanged(nameof(IsInGardenAndSaved));
+        OnPropertyChanged(nameof(Nickname));
 
         // For custom plants (PlantId == 0) there is no Perenual detail to load,
         // so build the PlantDetailDto directly from the saved UserPlantDto.

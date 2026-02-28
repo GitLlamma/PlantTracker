@@ -33,6 +33,7 @@ public class GardenController : ControllerBase
         ScientificName = p.ScientificName,
         ThumbnailUrl = p.ThumbnailUrl,
         Notes = p.Notes,
+        Nickname = p.Nickname,
         WateringReminderEnabled = p.WateringReminderEnabled,
         WateringFrequencyDays = p.WateringFrequencyDays,
         LastWateredAt = p.LastWateredAt,
@@ -131,8 +132,9 @@ public class GardenController : ControllerBase
 
         if (plant is null) return NotFound();
 
-        // Notes and reminders are editable for all plants
+        // Notes, nickname and reminders are editable for all plants
         plant.Notes = dto.Notes;
+        plant.Nickname = dto.Nickname;
         plant.WateringReminderEnabled = dto.WateringReminderEnabled;
         plant.WateringFrequencyDays = dto.WateringFrequencyDays;
         plant.LastWateredAt = dto.LastWateredAt;

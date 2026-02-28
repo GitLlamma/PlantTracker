@@ -11,6 +11,7 @@ public class UserPlantDto
     public string ScientificName { get; set; } = string.Empty;
     public string? ThumbnailUrl { get; set; }
     public string? Notes { get; set; }
+    public string? Nickname { get; set; }
     public bool WateringReminderEnabled { get; set; }
     public int? WateringFrequencyDays { get; set; }
     public DateTime? LastWateredAt { get; set; }

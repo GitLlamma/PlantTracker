@@ -33,6 +33,11 @@
                                    FontSize="22"
                                    FontAttributes="Bold"
                                    IsVisible="{Binding IsEditing, Converter={x:StaticResource InvertedBoolConverter}}"/>
+                            <Label Text="{Binding Nickname}"
+                                   FontSize="15"
+                                   TextColor="{StaticResource Primary}"
+                                   FontAttributes="Italic"
+                                   IsVisible="{Binding Nickname, Converter={x:StaticResource IsNotNullConverter}}"/>
                             <Label Text="{Binding Detail.ScientificName}"
                                    FontSize="13"
                                    TextColor="Gray"
@@ -48,6 +53,11 @@
                                    FontSize="13"
                                    Placeholder="Scientific name (optional)"
                                    IsVisible="{Binding IsEditableCustomPlant}"/>
+                            <!-- Nickname — editable for all garden plants -->
+                            <Entry Text="{Binding EditNickname}"
+                                   FontSize="14"
+                                   Placeholder="Nickname (optional)"
+                                   IsVisible="{Binding IsEditing}"/>
                         </VerticalStackLayout>
                         <Button Grid.Column="1"
                                 Text="+ Garden"
