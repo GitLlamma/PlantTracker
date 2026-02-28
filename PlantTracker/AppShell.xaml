@@ -27,14 +27,6 @@
             </ShellContent.Icon>
         </ShellContent>
 
-        <ShellContent
-            Title="Reminders"
-            Route="Reminders"
-            ContentTemplate="{DataTemplate views:RemindersPage}">
-            <ShellContent.Icon>
-                <FontImageSource Glyph="&#x1F514;" FontFamily="OpenSansRegular" Size="22"/>
-            </ShellContent.Icon>
-        </ShellContent>
 
         <ShellContent
             Title="Settings"

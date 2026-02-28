@@ -29,7 +29,7 @@ public partial class AppShell : Shell
     private PlantDetailPage? PlantDetail => _services.GetService<PlantDetailPage>();
 
     // Tab routes as defined in AppShell.xaml
-    private static readonly HashSet<string> TabRoutes = ["//Search", "//MyGarden", "//Reminders", "//Settings"];
+    private static readonly HashSet<string> TabRoutes = ["//Search", "//MyGarden", "//Settings"];
     private bool _isHandlingTabSwitch;
 
     private void OnShellNavigating(object? sender, ShellNavigatingEventArgs e)

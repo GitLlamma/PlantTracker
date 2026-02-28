@@ -41,7 +41,6 @@ public static class MauiProgram
         builder.Services.AddTransient<SearchViewModel>();
         builder.Services.AddSingleton<PlantDetailViewModel>();
         builder.Services.AddTransient<MyGardenViewModel>();
-        builder.Services.AddTransient<RemindersViewModel>();
         builder.Services.AddTransient<SettingsViewModel>();
         builder.Services.AddTransient<AddCustomPlantViewModel>();
         builder.Services.AddTransient<EditPlantViewModel>();
@@ -54,7 +53,6 @@ public static class MauiProgram
         builder.Services.AddTransient<SearchPage>();
         builder.Services.AddSingleton<PlantDetailPage>();
         builder.Services.AddTransient<MyGardenPage>();
-        builder.Services.AddTransient<RemindersPage>();
         builder.Services.AddTransient<SettingsPage>();
         builder.Services.AddTransient<AddCustomPlantPage>();
         builder.Services.AddTransient<EditPlantPage>();
