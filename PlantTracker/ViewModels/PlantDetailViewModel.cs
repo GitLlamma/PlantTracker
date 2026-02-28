@@ -229,7 +229,15 @@ public partial class PlantDetailViewModel : BaseViewModel
         OnPropertyChanged(nameof(IsEditableCustomPlant));
         OnPropertyChanged(nameof(ShowEditButton));
         if (value > 0)
+        {
+            // Clear stale garden state from any previously viewed plant before loading.
+            // UserPlant is set via a QueryProperty when navigating from My Garden — in
+            // that case OnUserPlantChanged fires after OnPlantIdChanged and re-sets these,
+            // so clearing here is safe.
+            IsInGarden  = false;
+            UserPlantId = 0;
             LoadDetailCommand.ExecuteAsync(null);
+        }
     }
 
     partial void OnIsEditingChanged(bool value)
