@@ -82,8 +82,23 @@ public partial class PlantDetailViewModel : BaseViewModel
     public bool IsEditableCustomPlant => IsEditing && IsInGarden && UserPlantId > 0 && PlantId == 0;
     // Notes are editable for all saved garden plants
     public bool IsEditableAnyPlant => IsInGarden && UserPlantId > 0;
-    // Edit button is shown when the plant is editable and the inline editor is not already open
-    public bool ShowEditButton => IsEditableAnyPlant && !IsEditing;
+    // Edit button only shown when navigated from My Garden (not from Search)
+    public bool ShowEditButton => IsEditableAnyPlant && !IsEditing && NavigatedFromGarden;
+
+    // Set to true only when a UserPlant query property is received (i.e. navigated from My Garden).
+    // Cleared whenever a new PlantId arrives (i.e. navigated from Search).
+    private bool _navigatedFromGarden;
+    public bool NavigatedFromGarden
+    {
+        get => _navigatedFromGarden;
+        private set
+        {
+            if (_navigatedFromGarden == value) return;
+            _navigatedFromGarden = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(ShowEditButton));
+        }
+    }
 
     partial void OnEditSelectedWateringChanged(string value) => OnPropertyChanged(nameof(EditWateringDescription));
     partial void OnEditSelectedSunlightChanged(string value) => OnPropertyChanged(nameof(EditSunlightDescription));
@@ -176,8 +191,7 @@ public partial class PlantDetailViewModel : BaseViewModel
         IsEditing = false;
         ClearEditFields();
 
-        // Clear garden membership first so OnPlantIdChanged's LoadDetailAsync
-        // guard (UserPlantId == 0) is already correct before PlantId changes.
+        NavigatedFromGarden = false;
         IsInGarden = false;
         UserPlantId = 0;
         Advice = null;
@@ -230,10 +244,8 @@ public partial class PlantDetailViewModel : BaseViewModel
         OnPropertyChanged(nameof(ShowEditButton));
         if (value > 0)
         {
-            // Clear stale garden state from any previously viewed plant before loading.
-            // UserPlant is set via a QueryProperty when navigating from My Garden — in
-            // that case OnUserPlantChanged fires after OnPlantIdChanged and re-sets these,
-            // so clearing here is safe.
+            // Navigated from Search — clear garden flag and stale state.
+            NavigatedFromGarden = false;
             IsInGarden  = false;
             UserPlantId = 0;
             LoadDetailCommand.ExecuteAsync(null);
@@ -375,7 +387,8 @@ public partial class PlantDetailViewModel : BaseViewModel
     {
         if (value is null) return;
 
-        // Always mark as in-garden so the edit button becomes visible immediately
+        // Navigated from My Garden — enable the edit button.
+        NavigatedFromGarden = true;
         IsInGarden = true;
         UserPlantId = value.Id;
         OnPropertyChanged(nameof(IsInGardenAndSaved));
