@@ -55,9 +55,16 @@
 
                                 <!-- Info -->
                                 <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                    <!-- Nickname on top when set, otherwise common name -->
+                                    <Label Text="{Binding Plant.Nickname}"
+                                           FontAttributes="Bold" FontSize="15"
+                                           LineBreakMode="TailTruncation"
+                                           IsVisible="{Binding Plant.Nickname, Converter={StaticResource IsNotNullConverter}}"/>
                                     <Label Text="{Binding Plant.CommonName}"
                                            FontAttributes="Bold" FontSize="15"
-                                           LineBreakMode="TailTruncation"/>
+                                           LineBreakMode="TailTruncation"
+                                           IsVisible="{Binding Plant.Nickname, Converter={StaticResource IsNullConverter}}"/>
+                                    <!-- Scientific name always shown below -->
                                     <Label Text="{Binding Plant.ScientificName}"
                                            FontSize="12" TextColor="Gray" FontAttributes="Italic"
                                            LineBreakMode="TailTruncation"/>

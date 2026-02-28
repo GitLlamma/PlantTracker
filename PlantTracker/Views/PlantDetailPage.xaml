@@ -28,16 +28,18 @@
                     <!-- Name + Add to Garden + Edit -->
                     <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
                         <VerticalStackLayout Grid.Column="0" Spacing="4">
-                            <!-- Read-only name -->
+                            <!-- Nickname on top when set -->
+                            <Label Text="{Binding Nickname}"
+                                   FontSize="22"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource Primary}"
+                                   IsVisible="{Binding Nickname, Converter={x:StaticResource IsNotNullConverter}}"/>
+                            <!-- Common name (always shown, slightly smaller when nickname present) -->
                             <Label Text="{Binding Detail.CommonName}"
                                    FontSize="22"
                                    FontAttributes="Bold"
                                    IsVisible="{Binding IsEditing, Converter={x:StaticResource InvertedBoolConverter}}"/>
-                            <Label Text="{Binding Nickname}"
-                                   FontSize="15"
-                                   TextColor="{StaticResource Primary}"
-                                   FontAttributes="Italic"
-                                   IsVisible="{Binding Nickname, Converter={x:StaticResource IsNotNullConverter}}"/>
+                            <!-- Scientific name always below -->
                             <Label Text="{Binding Detail.ScientificName}"
                                    FontSize="13"
                                    TextColor="Gray"
