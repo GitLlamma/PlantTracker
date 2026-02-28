@@ -6,6 +6,7 @@ namespace PlantTracker;
 public partial class AppShell : Shell
 {
     private readonly AuthService _auth;
+    private bool _startupCheckDone;
 
     public AppShell(AuthService auth)
     {
@@ -16,13 +17,17 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("PlantDetail", typeof(PlantDetailPage));
         Routing.RegisterRoute("AddCustomPlant", typeof(AddCustomPlantPage));
         Routing.RegisterRoute("EditPlant", typeof(EditPlantPage));
+        Routing.RegisterRoute("PlantDiseases", typeof(PlantDiseasesPage));
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
 
-        if (!_auth.IsLoggedIn)
+        if (_startupCheckDone) return;
+        _startupCheckDone = true;
+
+        if (!await _auth.IsLoggedInAsync())
             await GoToAsync("//Login");
     }
 }

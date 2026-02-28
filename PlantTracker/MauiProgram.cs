@@ -18,16 +18,22 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-        // ── HTTP client ──────────────────────────────────────────────────────
-        builder.Services.AddSingleton(new HttpClient
-        {
-            BaseAddress = new Uri(Constants.ApiBaseUrl)
-        });
-
         // ── Services ─────────────────────────────────────────────────────────
         builder.Services.AddSingleton<AuthService>();
         builder.Services.AddSingleton<GardenService>();
         builder.Services.AddSingleton<PlantService>();
+        builder.Services.AddSingleton<SessionExpiredHandler>();
+
+        // ── HTTP client ──────────────────────────────────────────────────────
+        builder.Services.AddSingleton(sp =>
+        {
+            var handler = sp.GetRequiredService<SessionExpiredHandler>();
+            handler.InnerHandler = new HttpClientHandler();
+            return new HttpClient(handler)
+            {
+                BaseAddress = new Uri(Constants.ApiBaseUrl)
+            };
+        });
 
         // ── ViewModels ───────────────────────────────────────────────────────
         builder.Services.AddTransient<LoginViewModel>();
@@ -39,6 +45,7 @@ public static class MauiProgram
         builder.Services.AddTransient<SettingsViewModel>();
         builder.Services.AddTransient<AddCustomPlantViewModel>();
         builder.Services.AddTransient<EditPlantViewModel>();
+        builder.Services.AddTransient<PlantDiseasesViewModel>();
 
         // ── Views ────────────────────────────────────────────────────────────
         builder.Services.AddTransient<LoginPage>();
@@ -50,6 +57,7 @@ public static class MauiProgram
         builder.Services.AddTransient<SettingsPage>();
         builder.Services.AddTransient<AddCustomPlantPage>();
         builder.Services.AddTransient<EditPlantPage>();
+        builder.Services.AddTransient<PlantDiseasesPage>();
 
         // ── Shell & App ──────────────────────────────────────────────────────
         builder.Services.AddSingleton<AppShell>();

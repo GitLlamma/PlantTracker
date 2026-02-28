@@ -58,6 +58,16 @@ public class PlantService
         catch { return null; }
     }
 
+    public async Task<List<PlantDiseaseDto>> GetDiseasesAsync(int plantId)
+    {
+        await SetAuthHeaderAsync();
+        try
+        {
+            return await _http.GetFromJsonAsync<List<PlantDiseaseDto>>($"api/plants/{plantId}/diseases") ?? [];
+        }
+        catch { return []; }
+    }
+
     public async Task<int?> GetZoneAsync(string zipCode)
     {
         await SetAuthHeaderAsync();

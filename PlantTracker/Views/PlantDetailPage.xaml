@@ -173,6 +173,13 @@
                         </HorizontalStackLayout>
                     </Border>
 
+                    <!-- Diseases & Pests -->
+                    <Button Text="🦠 View Diseases &amp; Pests"
+                            Command="{Binding GoToDiseasesCommand}"
+                            IsVisible="{Binding HasPerenualData}"
+                            Style="{StaticResource PrimaryButton}"
+                            Margin="0,8,0,0"/>
+
                 </VerticalStackLayout>
             </VerticalStackLayout>
         </ScrollView>

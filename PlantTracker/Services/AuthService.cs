@@ -12,8 +12,8 @@ public class AuthService
         _http = http;
     }
 
-    public bool IsLoggedIn => !string.IsNullOrEmpty(
-        SecureStorage.Default.GetAsync(Constants.AuthTokenKey).GetAwaiter().GetResult());
+    public async Task<bool> IsLoggedInAsync() =>
+        !string.IsNullOrEmpty(await SecureStorage.Default.GetAsync(Constants.AuthTokenKey));
 
     public async Task<UserDto?> GetCurrentUserAsync()
     {

@@ -62,6 +62,22 @@ public class PlantService
         });
     }
 
+    public async Task<List<PlantDiseaseDto>> GetDiseasesAsync(int plantId)
+    {
+        var cacheKey = $"diseases:{plantId}";
+
+        return await _cache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(7);
+
+            // Perenual disease endpoint searches by species ID
+            var url = $"https://perenual.com/api/v2/pest-disease-list?key={_apiKey}&species_id={plantId}";
+            var response = await _http.GetFromJsonAsync<PerenualListResponse<PerenualDiseaseItem>>(url, JsonOptions);
+
+            return response?.Data.Select(MapToDisease).ToList() ?? [];
+        }) ?? [];
+    }
+
     private static PlantSummaryDto MapToSummary(PerenualPlantSummary p) => new()
     {
         Id = p.Id,
@@ -96,6 +112,28 @@ public class PlantService
 
     private static int? TryParseZone(string? value) =>
         int.TryParse(value, out var z) ? z : null;
+
+    private static PlantDiseaseDto MapToDisease(PerenualDiseaseItem d) => new()
+    {
+        Id = d.Id,
+        CommonName = d.CommonName,
+        Description = d.Description.Count > 0
+            ? string.Join("\n\n", d.Description
+                .Where(x => !string.IsNullOrWhiteSpace(x.Description))
+                .Select(x => string.IsNullOrWhiteSpace(x.Subtitle)
+                    ? x.Description
+                    : $"**{x.Subtitle}**\n{x.Description}"))
+            : null,
+        Solution = d.Solution.Count > 0
+            ? string.Join("\n\n", d.Solution
+                .Where(x => !string.IsNullOrWhiteSpace(x.Description))
+                .Select(x => string.IsNullOrWhiteSpace(x.Subtitle)
+                    ? x.Description
+                    : $"**{x.Subtitle}**\n{x.Description}"))
+            : null,
+        ThumbnailUrl = d.Images.FirstOrDefault()?.Thumbnail,
+        HostPlants = d.Host
+    };
 }
 
 

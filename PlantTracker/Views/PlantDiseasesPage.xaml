@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlantTracker.ViewModels"
+             xmlns:dto="clr-namespace:PlantTracker.Shared.DTOs.Plants;assembly=PlantTracker.Shared"
+             xmlns:conv="clr-namespace:PlantTracker.Converters"
+             x:Class="PlantTracker.Views.PlantDiseasesPage"
+             x:DataType="vm:PlantDiseasesViewModel"
+             Title="{Binding Title}">
+
+    <Shell.TitleView>
+        <Label Text="{Binding PlantName, StringFormat='🦠 {0} — Diseases &amp; Pests'}"
+               FontAttributes="Bold"
+               FontSize="15"
+               VerticalOptions="Center"
+               LineBreakMode="TailTruncation"/>
+    </Shell.TitleView>
+
+    <Grid RowDefinitions="*">
+
+        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center"/>
+
+        <!-- Empty state -->
+        <VerticalStackLayout IsVisible="{Binding IsEmpty}"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Center"
+                             Spacing="12">
+            <Label Text="🌿" FontSize="48" HorizontalOptions="Center"/>
+            <Label Text="No disease or pest data found for this plant."
+                   FontSize="15"
+                   TextColor="Gray"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"/>
+        </VerticalStackLayout>
+
+        <CollectionView ItemsSource="{Binding Diseases}"
+                        IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                        Margin="0,8,0,0">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="dto:PlantDiseaseDto">
+                    <Border Margin="16,6"
+                            Padding="0"
+                            StrokeShape="RoundRectangle 12"
+                            Stroke="{StaticResource Gray200Brush}"
+                            BackgroundColor="{StaticResource Surface}">
+                        <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="96,*">
+
+                            <!-- Thumbnail -->
+                            <Image Grid.RowSpan="3"
+                                   Grid.Column="0"
+                                   Source="{Binding ThumbnailUrl}"
+                                   Aspect="AspectFill"
+                                   HeightRequest="96"
+                                   WidthRequest="96"
+                                   BackgroundColor="{StaticResource Secondary}"/>
+
+                            <!-- Name -->
+                            <Label Grid.Row="0" Grid.Column="1"
+                                   Text="{Binding CommonName}"
+                                   FontAttributes="Bold"
+                                   FontSize="15"
+                                   Margin="12,12,12,4"
+                                   LineBreakMode="WordWrap"/>
+
+                            <!-- Description -->
+                            <Label Grid.Row="1" Grid.Column="1"
+                                   Text="{Binding Description}"
+                                   FontSize="13"
+                                   TextColor="Gray"
+                                   LineBreakMode="WordWrap"
+                                   MaxLines="4"
+                                   Margin="12,0,12,4"
+                                   IsVisible="{Binding Description, Converter={StaticResource IsNotNullConverter}}"/>
+
+                            <!-- Solution -->
+                            <VerticalStackLayout Grid.Row="2" Grid.Column="1"
+                                                 Margin="12,0,12,12"
+                                                 Spacing="2"
+                                                 IsVisible="{Binding Solution, Converter={StaticResource IsNotNullConverter}}">
+                                <Label Text="💊 Treatment"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource Primary}"/>
+                                <Label Text="{Binding Solution}"
+                                       FontSize="12"
+                                       LineBreakMode="WordWrap"
+                                       MaxLines="4"/>
+                            </VerticalStackLayout>
+
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+</ContentPage>
+

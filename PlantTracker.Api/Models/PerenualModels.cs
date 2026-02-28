@@ -107,3 +107,48 @@ public class PerenualHardiness
     public string? Max { get; set; }
 }
 
+public class PerenualDiseaseItem
+{
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+
+    [JsonPropertyName("common_name")]
+    public string CommonName { get; set; } = string.Empty;
+
+    [JsonPropertyName("description")]
+    public List<PerenualDiseaseDescription> Description { get; set; } = [];
+
+    [JsonPropertyName("solution")]
+    public List<PerenualDiseaseSolution> Solution { get; set; } = [];
+
+    [JsonPropertyName("host")]
+    public List<string> Host { get; set; } = [];
+
+    [JsonPropertyName("images")]
+    public List<PerenualDiseaseImage> Images { get; set; } = [];
+}
+
+public class PerenualDiseaseDescription
+{
+    [JsonPropertyName("subtitle")]
+    public string? Subtitle { get; set; }
+
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+}
+
+public class PerenualDiseaseSolution
+{
+    [JsonPropertyName("subtitle")]
+    public string? Subtitle { get; set; }
+
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+}
+
+public class PerenualDiseaseImage
+{
+    [JsonPropertyName("thumbnail")]
+    public string? Thumbnail { get; set; }
+}
+

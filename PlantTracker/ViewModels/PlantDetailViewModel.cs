@@ -28,6 +28,8 @@ public partial class PlantDetailViewModel : BaseViewModel
 
     public string IndoorOutdoorText => Detail?.Indoor == true ? "Indoors" : "Outdoors";
 
+    public bool HasPerenualData => PlantId > 0;
+
     /// <summary>Human-readable growth rate detail built from GrowthRate, Cycle, FloweringSeason, FruitSeason.</summary>
     public string GrowthRateDetail
     {
@@ -97,6 +99,7 @@ public partial class PlantDetailViewModel : BaseViewModel
 
     partial void OnPlantIdChanged(int value)
     {
+        OnPropertyChanged(nameof(HasPerenualData));
         if (value > 0)
             LoadDetailCommand.ExecuteAsync(null);
     }
@@ -135,6 +138,16 @@ public partial class PlantDetailViewModel : BaseViewModel
 
     [RelayCommand]
     private void ToggleGrowthRate() => IsGrowthRateExpanded = !IsGrowthRateExpanded;
+
+    [RelayCommand]
+    private async Task GoToDiseasesAsync()
+    {
+        await Shell.Current.GoToAsync("PlantDiseases", new Dictionary<string, object>
+        {
+            { "PlantId", PlantId },
+            { "PlantName", Detail?.CommonName ?? PlantSummary?.CommonName ?? string.Empty }
+        });
+    }
 
     [RelayCommand]
     public async Task LoadDetailAsync()
@@ -194,7 +207,6 @@ public partial class PlantDetailViewModel : BaseViewModel
         {
             IsInGarden = true;
             WeakReferenceMessenger.Default.Send(new GardenPlantAddedMessage());
-            await Shell.Current.DisplayAlertAsync("Added!", $"{dto.CommonName} has been added to your garden. 🌱", "OK");
         }
         else
         {

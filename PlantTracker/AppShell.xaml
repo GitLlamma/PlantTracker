@@ -6,19 +6,6 @@
     xmlns:views="clr-namespace:PlantTracker.Views"
     Shell.NavBarIsVisible="False">
 
-    <!-- ── Auth routes (no tab bar) ─────────────────────────────────────── -->
-    <ShellContent
-        x:Name="LoginShell"
-        Route="Login"
-        ContentTemplate="{DataTemplate views:LoginPage}"
-        Shell.TabBarIsVisible="False"/>
-
-    <ShellContent
-        x:Name="RegisterShell"
-        Route="Register"
-        ContentTemplate="{DataTemplate views:RegisterPage}"
-        Shell.TabBarIsVisible="False"/>
-
     <!-- ── Main app tab bar ──────────────────────────────────────────────── -->
     <TabBar x:Name="MainTabBar">
 
@@ -59,5 +46,18 @@
         </ShellContent>
 
     </TabBar>
+
+    <!-- ── Auth routes (no tab bar) ─────────────────────────────────────── -->
+    <ShellContent
+        x:Name="LoginShell"
+        Route="Login"
+        ContentTemplate="{DataTemplate views:LoginPage}"
+        Shell.TabBarIsVisible="False"/>
+
+    <ShellContent
+        x:Name="RegisterShell"
+        Route="Register"
+        ContentTemplate="{DataTemplate views:RegisterPage}"
+        Shell.TabBarIsVisible="False"/>
 
 </Shell>

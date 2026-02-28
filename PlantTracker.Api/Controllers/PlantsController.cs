@@ -40,6 +40,14 @@ public class PlantsController : ControllerBase
         return Ok(detail);
     }
 
+    // GET api/plants/{id}/diseases
+    [HttpGet("{id:int}/diseases")]
+    public async Task<ActionResult<List<PlantDiseaseDto>>> GetDiseases(int id)
+    {
+        var diseases = await _plants.GetDiseasesAsync(id);
+        return Ok(diseases);
+    }
+
     // GET api/plants/{id}/advice?zipCode=90210
     [HttpGet("{id:int}/advice")]
     public async Task<ActionResult<PlantingAdviceDto>> GetPlantingAdvice(int id, [FromQuery] string? zipCode)
