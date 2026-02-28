@@ -9,6 +9,7 @@ public partial class SettingsViewModel : BaseViewModel
 {
     private readonly AuthService _auth;
     private readonly PlantService _plants;
+    private readonly GardenService _garden;
     private readonly NotificationService _notifications;
 
     [ObservableProperty] private string _displayName = string.Empty;
@@ -18,10 +19,11 @@ public partial class SettingsViewModel : BaseViewModel
 
     private bool _initialized;
 
-    public SettingsViewModel(AuthService auth, PlantService plants, NotificationService notifications)
+    public SettingsViewModel(AuthService auth, PlantService plants, GardenService garden, NotificationService notifications)
     {
         _auth = auth;
         _plants = plants;
+        _garden = garden;
         _notifications = notifications;
         Title = "Settings";
         ReminderTime = _notifications.GetDefaultReminderTime();
@@ -73,6 +75,7 @@ public partial class SettingsViewModel : BaseViewModel
         if (!confirm) return;
 
         _plants.ClearCache();
+        _garden.ClearCache();
         await _auth.LogoutAsync();
         await Shell.Current.GoToAsync("//Login");
     }

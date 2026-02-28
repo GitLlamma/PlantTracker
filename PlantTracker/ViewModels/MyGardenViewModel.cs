@@ -81,16 +81,32 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
     public async Task LoadGardenAsync()
     {
         if (IsBusy) return;
-        IsBusy = true;
+
+        var hasCachedData = Plants.Count > 0;
+
+        // Only show the loading spinner on the very first load (no data visible yet)
+        if (!hasCachedData)
+            IsBusy = true;
 
         try
         {
+            // GetGardenAsync returns cache immediately if available, then refreshes in background.
+            // On first load it waits for the network. Either way we apply whatever comes back.
             var plants = await _garden.GetGardenAsync();
-            Plants.Clear();
-            foreach (var p in plants)
-                Plants.Add(new GardenPlantItem(p));
+            ApplyPlants(plants);
 
-            IsEmpty = Plants.Count == 0;
+            // If cache was returned instantly, the background refresh is already running.
+            // Subscribe to get the refreshed data once it lands and silently update the UI.
+            if (hasCachedData)
+            {
+                _ = Task.Run(async () =>
+                {
+                    // Small delay to let RefreshCacheAsync finish
+                    await Task.Delay(100);
+                    var refreshed = await _garden.GetGardenAsync();
+                    await MainThread.InvokeOnMainThreadAsync(() => ApplyPlants(refreshed));
+                });
+            }
         }
         catch (Exception ex)
         {
@@ -100,6 +116,14 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
         {
             IsBusy = false;
         }
+    }
+
+    private void ApplyPlants(List<UserPlantDto> plants)
+    {
+        Plants.Clear();
+        foreach (var p in plants)
+            Plants.Add(new GardenPlantItem(p));
+        IsEmpty = Plants.Count == 0;
     }
 
     [RelayCommand]
