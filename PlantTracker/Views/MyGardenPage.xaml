@@ -7,6 +7,10 @@
              x:DataType="vm:MyGardenViewModel"
              Title="{Binding Title}">
 
+    <ContentPage.Background>
+        <SolidColorBrush Color="{AppThemeBinding Light={StaticResource SkyBlueLight}, Dark={StaticResource SkyBlueDark}}"/>
+    </ContentPage.Background>
+
     <ContentPage.Resources>
         <conv:IsNotNullConverter x:Key="IsNotNullConverter"/>
         <conv:IsNullConverter x:Key="IsNullConverter"/>
@@ -24,6 +28,24 @@
             <Label Text="Search for plants, or tap + to add a custom one." FontSize="14" TextColor="Gray" HorizontalOptions="Center"/>
         </VerticalStackLayout>
 
+        <!-- Far cloud layer — slowest parallax, behind everything -->
+        <Image x:Name="CloudsFar"
+               Source="clouds_far.svg"
+               Aspect="AspectFill"
+               HeightRequest="280"
+               VerticalOptions="Start"
+               InputTransparent="True"
+               IsVisible="{Binding IsNotBusy}"/>
+
+        <!-- Near cloud layer — medium parallax, in front of far clouds -->
+        <Image x:Name="CloudsNear"
+               Source="clouds_near.svg"
+               Aspect="AspectFill"
+               HeightRequest="280"
+               VerticalOptions="Start"
+               InputTransparent="True"
+               IsVisible="{Binding IsNotBusy}"/>
+
         <!-- Back grass blades — declared before CollectionView so they sit behind it -->
         <Image Source="grass_front.svg"
                Aspect="AspectFill"
@@ -34,11 +56,12 @@
         <!-- Plant list — scrolls over the back grass; footer spacer lets last card clear the front grass -->
         <CollectionView ItemsSource="{Binding Plants}"
                         IsVisible="{Binding IsNotBusy}"
-                        SelectionMode="None">
+                        SelectionMode="None"
+                        Scrolled="OnGardenScrolled">
             <CollectionView.Footer>
                 <!-- Matches the height of the front grass overlay so the last card
                      scrolls fully above it before the list ends -->
-                <BoxView HeightRequest="120" Color="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}"/>
+                <BoxView HeightRequest="120" Color="{AppThemeBinding Light={StaticResource SkyBlueLight}, Dark={StaticResource SkyBlueDark}}"/>
             </CollectionView.Footer>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="vm:GardenPlantItem">
