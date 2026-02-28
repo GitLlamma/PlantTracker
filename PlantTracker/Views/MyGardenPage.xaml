@@ -29,7 +29,7 @@
                         IsVisible="{Binding IsNotBusy}"
                         SelectionMode="None">
             <CollectionView.Footer>
-                <BoxView HeightRequest="96" Color="Transparent"/>
+                <BoxView HeightRequest="96" Color="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}"/>
             </CollectionView.Footer>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="vm:GardenPlantItem">
