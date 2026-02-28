@@ -16,6 +16,11 @@ public partial class MyGardenPage : ContentPage
     {
         InitializeComponent();
         BindingContext = _vm = vm;
+        _vm.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(MyGardenViewModel.IsEmpty))
+                Dispatcher.Dispatch(UpdateFooterVisibility);
+        };
     }
 
     protected override async void OnAppearing()
@@ -61,7 +66,7 @@ public partial class MyGardenPage : ContentPage
         // it would be if it didn't have to fit on screen. If that exceeds the visible
         // area (page height minus the grass overlay), the list needs scrolling.
         var naturalHeight = GardenList.Measure(Width, double.PositiveInfinity).Height;
-        _vm.FooterVisible = naturalHeight > (pageHeight - GrassHeight);
+        _vm.FooterVisible = !_vm.IsEmpty && naturalHeight > (pageHeight - GrassHeight);
     }
 }
 
