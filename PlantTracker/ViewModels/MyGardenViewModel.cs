@@ -181,10 +181,18 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
 
             var dto = new UpdateUserPlantDto
             {
-                Notes = plant.Notes,
+                Nickname                = plant.Nickname,
+                Notes                   = plant.Notes,
+                CommonName              = plant.CommonName,
+                ScientificName          = plant.ScientificName,
+                Watering                = plant.Watering,
+                Sunlight                = plant.Sunlight,
+                Cycle                   = plant.Cycle,
+                CareLevel               = plant.CareLevel,
+                ThumbnailUrl            = plant.ThumbnailUrl,
                 WateringReminderEnabled = false,
-                WateringFrequencyDays = plant.WateringFrequencyDays,
-                LastWateredAt = plant.LastWateredAt
+                WateringFrequencyDays   = plant.WateringFrequencyDays,
+                LastWateredAt           = plant.LastWateredAt
             };
             var (success, updated, _) = await _garden.UpdatePlantAsync(plant.Id, dto);
             if (success && updated is not null)
@@ -216,10 +224,18 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
 
             var dto = new UpdateUserPlantDto
             {
-                Notes = plant.Notes,
+                Nickname                = plant.Nickname,
+                Notes                   = plant.Notes,
+                CommonName              = plant.CommonName,
+                ScientificName          = plant.ScientificName,
+                Watering                = plant.Watering,
+                Sunlight                = plant.Sunlight,
+                Cycle                   = plant.Cycle,
+                CareLevel               = plant.CareLevel,
+                ThumbnailUrl            = plant.ThumbnailUrl,
                 WateringReminderEnabled = true,
-                WateringFrequencyDays = days,
-                LastWateredAt = plant.LastWateredAt
+                WateringFrequencyDays   = days,
+                LastWateredAt           = plant.LastWateredAt
             };
             var (success, updated, _) = await _garden.UpdatePlantAsync(plant.Id, dto);
             if (success && updated is not null)
