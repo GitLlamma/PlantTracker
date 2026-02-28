@@ -37,7 +37,14 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
     private readonly EditPlantViewModel _editVm;
     private readonly NotificationService _notifications;
 
-    [ObservableProperty] private bool _isEmpty;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FooterHeight))]
+    private bool _isEmpty;
+
+    public double FooterHeight => IsEmpty ? 0 : 120;
+
+    // Set by the code-behind once it knows whether the list overflows the screen.
+    [ObservableProperty] private bool _footerVisible;
 
     public ObservableCollection<GardenPlantItem> Plants { get; } = [];
 

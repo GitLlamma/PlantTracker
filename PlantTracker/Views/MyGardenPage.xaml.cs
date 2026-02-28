@@ -6,10 +6,11 @@ public partial class MyGardenPage : ContentPage
 {
     private readonly MyGardenViewModel _vm;
 
-    // Parallax rates — how many pixels each cloud layer moves per pixel scrolled.
-    // Cards scroll at 1.0. Far clouds scroll slowest (appear furthest away).
     private const double FarCloudRate  = 0.04;
     private const double NearCloudRate = 0.09;
+
+    // Grass overlay height — footer only needed when list content exceeds this threshold
+    private const double GrassHeight = 120;
 
     public MyGardenPage(MyGardenViewModel vm)
     {
@@ -21,14 +22,34 @@ public partial class MyGardenPage : ContentPage
     {
         base.OnAppearing();
         await _vm.LoadGardenCommand.ExecuteAsync(null);
+        UpdateFooterVisibility();
     }
+
+    protected override void OnSizeAllocated(double width, double height)
+    {
+        base.OnSizeAllocated(width, height);
+        UpdateFooterVisibility();
+    }
+
+    private void OnGardenListSizeChanged(object sender, EventArgs e) =>
+        UpdateFooterVisibility();
 
     private void OnGardenScrolled(object sender, ItemsViewScrolledEventArgs e)
     {
-        // Translate each cloud layer upward as the list scrolls down.
-        // A lower rate means the layer moves less — making it appear further away.
         CloudsFar.TranslationY  = -e.VerticalOffset * FarCloudRate;
         CloudsNear.TranslationY = -e.VerticalOffset * NearCloudRate;
+    }
+
+    private void UpdateFooterVisibility()
+    {
+        var pageHeight = Height;
+        if (pageHeight <= 0 || Width <= 0) return;
+
+        // Measure the CollectionView's natural (unconstrained) height — i.e. how tall
+        // it would be if it didn't have to fit on screen. If that exceeds the visible
+        // area (page height minus the grass overlay), the list needs scrolling.
+        var naturalHeight = GardenList.Measure(Width, double.PositiveInfinity).Height;
+        _vm.FooterVisible = naturalHeight > (pageHeight - GrassHeight);
     }
 }
 
