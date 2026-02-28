@@ -21,6 +21,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("PlantGallery", typeof(PlantGalleryPage));
 
         Navigating += OnShellNavigating;
+        Navigated += OnShellNavigated;
     }
 
     // Tab routes as defined in AppShell.xaml
@@ -42,6 +43,19 @@ public partial class AppShell : Shell
             _isHandlingTabSwitch = true;
             _ = GoToAsync(e.Target.Location.OriginalString, false)
                 .ContinueWith(_ => _isHandlingTabSwitch = false);
+        }
+    }
+
+    private void OnShellNavigated(object? sender, ShellNavigatedEventArgs e)
+    {
+        // After a tab switch, pop any remaining sub-pages that weren't cleared
+        // by the Navigating handler (e.g. if NavigationStack.Count was 1 but
+        // Shell still switched sections).
+        if ((e.Source == ShellNavigationSource.ShellSectionChanged ||
+             e.Source == ShellNavigationSource.ShellItemChanged)
+            && Navigation.NavigationStack.Count > 1)
+        {
+            Navigation.PopToRootAsync(animated: false);
         }
     }
 

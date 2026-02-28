@@ -161,6 +161,22 @@ public partial class PlantDetailViewModel : BaseViewModel
         Title = "Plant Details";
     }
 
+    /// <summary>Clears all visible state. Called from OnNavigatingFrom so the page
+    /// shows nothing if briefly rendered during a tab-switch pop animation.</summary>
+    public void Reset()
+    {
+        Detail = null;
+        PlantSummary = null;
+        UserPlant = null;
+        Advice = null;
+        AdviceEmoji = string.Empty;
+        IsInGarden = false;
+        UserPlantId = 0;
+        PlantId = 0;
+        IsEditing = false;
+        Title = "Plant Details";
+    }
+
     partial void OnUserPlantIdChanged(int value)
     {
         OnPropertyChanged(nameof(IsInGardenAndSaved));
