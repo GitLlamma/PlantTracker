@@ -8,9 +8,9 @@ using PlantTracker.Shared.DTOs.Plants;
 
 namespace PlantTracker.ViewModels;
 
-[QueryProperty(nameof(PlantId), "PlantId")]
 [QueryProperty(nameof(PlantSummary), "PlantSummary")]
 [QueryProperty(nameof(UserPlant), "UserPlant")]
+[QueryProperty(nameof(PlantId), "PlantId")]
 public partial class PlantDetailViewModel : BaseViewModel
 {
     private readonly PlantService _plants;
@@ -31,10 +31,10 @@ public partial class PlantDetailViewModel : BaseViewModel
     [ObservableProperty] private string _editNotes = string.Empty;
     [ObservableProperty] private string _editCommonName = string.Empty;
     [ObservableProperty] private string _editScientificName = string.Empty;
-    [ObservableProperty] private string _editSelectedWatering = "Average";
-    [ObservableProperty] private string _editSelectedSunlight = "Full Sun";
-    [ObservableProperty] private string _editSelectedCycle = "Perennial";
-    [ObservableProperty] private string _editSelectedCareLevel = "Medium";
+    [ObservableProperty] private string _editSelectedWatering = string.Empty;
+    [ObservableProperty] private string _editSelectedSunlight = string.Empty;
+    [ObservableProperty] private string _editSelectedCycle = string.Empty;
+    [ObservableProperty] private string _editSelectedCareLevel = string.Empty;
 
     public List<string> WateringOptions { get; } = ["Frequent", "Average", "Minimum", "None"];
     public List<string> SunlightOptions { get; } = ["Full Sun", "Part Sun/Part Shade", "Part Shade", "Full Shade", "Filtered Shade"];
@@ -77,10 +77,12 @@ public partial class PlantDetailViewModel : BaseViewModel
         _        => string.Empty
     };
 
-    // True only for custom plants (PlantId == 0) that are in the garden
-    public bool IsEditableCustomPlant => IsInGarden && UserPlantId > 0 && PlantId == 0;
+    // True only for custom plants (PlantId == 0) that are in the garden AND currently editing
+    public bool IsEditableCustomPlant => IsEditing && IsInGarden && UserPlantId > 0 && PlantId == 0;
     // Notes are editable for all saved garden plants
     public bool IsEditableAnyPlant => IsInGarden && UserPlantId > 0;
+    // Edit button is shown when the plant is editable and the inline editor is not already open
+    public bool ShowEditButton => IsEditableAnyPlant && !IsEditing;
 
     partial void OnEditSelectedWateringChanged(string value) => OnPropertyChanged(nameof(EditWateringDescription));
     partial void OnEditSelectedSunlightChanged(string value) => OnPropertyChanged(nameof(EditSunlightDescription));
@@ -161,20 +163,43 @@ public partial class PlantDetailViewModel : BaseViewModel
         Title = "Plant Details";
     }
 
-    /// <summary>Clears all visible state. Called from OnNavigatingFrom so the page
-    /// shows nothing if briefly rendered during a tab-switch pop animation.</summary>
+    /// <summary>Clears all visible state. Called when navigating away via a tab switch.</summary>
     public void Reset()
     {
-        Detail = null;
-        PlantSummary = null;
-        UserPlant = null;
-        Advice = null;
-        AdviceEmoji = string.Empty;
+        // Disable editing first — IsEditableCustomPlant depends on IsEditing,
+        // so clearing this before any other property change prevents pickers
+        // from briefly becoming visible during the reset sequence.
+        IsEditing = false;
+        ClearEditFields();
+
+        // Clear garden membership first so OnPlantIdChanged's LoadDetailAsync
+        // guard (UserPlantId == 0) is already correct before PlantId changes.
         IsInGarden = false;
         UserPlantId = 0;
+        Advice = null;
+        AdviceEmoji = string.Empty;
+        Detail = null;
+        PlantSummary = null;
+        // Setting UserPlant = null triggers OnUserPlantChanged which returns early on null — safe.
+        UserPlant = null;
+        // Set PlantId last — OnPlantIdChanged fires LoadDetailAsync only when value > 0,
+        // so setting to 0 is a no-op for loading but clears the state.
         PlantId = 0;
-        IsEditing = false;
         Title = "Plant Details";
+    }
+
+    private void ClearEditFields()
+    {
+        EditCommonName        = string.Empty;
+        EditScientificName    = string.Empty;
+        EditNotes             = string.Empty;
+        // Set to empty string so no picker item is selected — avoids the MAUI
+        // bug where setting SelectedItem to a valid value triggers the dropdown
+        // to open even when the Picker is IsVisible=false.
+        EditSelectedWatering  = string.Empty;
+        EditSelectedSunlight  = string.Empty;
+        EditSelectedCycle     = string.Empty;
+        EditSelectedCareLevel = string.Empty;
     }
 
     partial void OnUserPlantIdChanged(int value)
@@ -182,6 +207,7 @@ public partial class PlantDetailViewModel : BaseViewModel
         OnPropertyChanged(nameof(IsInGardenAndSaved));
         OnPropertyChanged(nameof(IsEditableAnyPlant));
         OnPropertyChanged(nameof(IsEditableCustomPlant));
+        OnPropertyChanged(nameof(ShowEditButton));
     }
 
     partial void OnIsInGardenChanged(bool value)
@@ -189,14 +215,22 @@ public partial class PlantDetailViewModel : BaseViewModel
         OnPropertyChanged(nameof(IsInGardenAndSaved));
         OnPropertyChanged(nameof(IsEditableAnyPlant));
         OnPropertyChanged(nameof(IsEditableCustomPlant));
+        OnPropertyChanged(nameof(ShowEditButton));
     }
 
     partial void OnPlantIdChanged(int value)
     {
         OnPropertyChanged(nameof(HasPerenualData));
         OnPropertyChanged(nameof(IsEditableCustomPlant));
+        OnPropertyChanged(nameof(ShowEditButton));
         if (value > 0)
             LoadDetailCommand.ExecuteAsync(null);
+    }
+
+    partial void OnIsEditingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ShowEditButton));
+        OnPropertyChanged(nameof(IsEditableCustomPlant));
     }
 
     [RelayCommand]
@@ -215,7 +249,11 @@ public partial class PlantDetailViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private void CancelEdit() => IsEditing = false;
+    private void CancelEdit()
+    {
+        IsEditing = false;
+        ClearEditFields();
+    }
 
     [RelayCommand]
     private async Task SaveEditAsync()
@@ -264,6 +302,7 @@ public partial class PlantDetailViewModel : BaseViewModel
 
                 Title = updated.CommonName;
                 IsEditing = false;
+                ClearEditFields();
                 WeakReferenceMessenger.Default.Send(new GardenPlantAddedMessage()); // refreshes My Garden list
             }
             else
@@ -348,12 +387,17 @@ public partial class PlantDetailViewModel : BaseViewModel
             if (Detail is not null)
                 Title = Detail.CommonName;
 
-            // Check if plant is already saved to garden
-            var gardenPlants = await _garden.GetGardenAsync();
-            var savedPlant = gardenPlants.FirstOrDefault(p => p.PlantId == PlantId);
-            IsInGarden = savedPlant is not null;
-            UserPlantId = savedPlant?.Id ?? 0;
-            OnPropertyChanged(nameof(IsInGardenAndSaved));
+            // Only query the garden if UserPlantId wasn't already provided via
+            // the UserPlant query property (e.g. navigating from My Garden).
+            // This prevents overwriting IsInGarden/UserPlantId that were already set.
+            if (UserPlantId == 0)
+            {
+                var gardenPlants = await _garden.GetGardenAsync();
+                var savedPlant = gardenPlants.FirstOrDefault(p => p.PlantId == PlantId);
+                IsInGarden = savedPlant is not null;
+                UserPlantId = savedPlant?.Id ?? 0;
+                OnPropertyChanged(nameof(IsInGardenAndSaved));
+            }
 
             // Load zone advice using user's stored zip
             var user = await _auth.GetCurrentUserAsync();
@@ -362,11 +406,11 @@ public partial class PlantDetailViewModel : BaseViewModel
                 Advice = await _plants.GetPlantingAdviceAsync(PlantId, user.ZipCode);
                 AdviceEmoji = Advice?.Recommendation switch
                 {
-                    PlantingRecommendation.PlantNowOutdoors => "✅",
-                    PlantingRecommendation.StartIndoors     => "🏠",
-                    PlantingRecommendation.Wait             => "⏳",
+                    PlantingRecommendation.PlantNowOutdoors  => "✅",
+                    PlantingRecommendation.StartIndoors      => "🏠",
+                    PlantingRecommendation.Wait              => "⏳",
                     PlantingRecommendation.ZoneNotCompatible => "❌",
-                    _ => "🌱"
+                    _                                        => "🌱"
                 };
             }
         }

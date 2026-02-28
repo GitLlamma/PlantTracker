@@ -6,12 +6,14 @@ namespace PlantTracker;
 public partial class AppShell : Shell
 {
     private readonly AuthService _auth;
+    private readonly IServiceProvider _services;
     private bool _startupCheckDone;
 
-    public AppShell(AuthService auth)
+    public AppShell(AuthService auth, IServiceProvider services)
     {
         InitializeComponent();
         _auth = auth;
+        _services = services;
 
         // Register routes for pages not in the tab bar
         Routing.RegisterRoute("PlantDetail", typeof(PlantDetailPage));
@@ -24,21 +26,22 @@ public partial class AppShell : Shell
         Navigated += OnShellNavigated;
     }
 
+    private PlantDetailPage? PlantDetail => _services.GetService<PlantDetailPage>();
+
     // Tab routes as defined in AppShell.xaml
     private static readonly HashSet<string> TabRoutes = ["//Search", "//MyGarden", "//Reminders", "//Settings"];
     private bool _isHandlingTabSwitch;
 
     private void OnShellNavigating(object? sender, ShellNavigatingEventArgs e)
     {
-        // Guard against re-entrant calls triggered by our own GoToAsync below
         if (_isHandlingTabSwitch) return;
 
-        // If navigating to a root tab route while a sub-page is on the stack,
-        // cancel the default navigation and replace it with a direct absolute
-        // GoToAsync — this clears the stack atomically with no flash.
         if (TabRoutes.Contains(e.Target.Location.OriginalString)
             && Navigation.NavigationStack.Count > 1)
         {
+            // Reset detail page state before any frame renders — eliminates flash
+            PlantDetail?.Reset();
+
             e.Cancel();
             _isHandlingTabSwitch = true;
             _ = GoToAsync(e.Target.Location.OriginalString, false)
@@ -48,14 +51,13 @@ public partial class AppShell : Shell
 
     private void OnShellNavigated(object? sender, ShellNavigatedEventArgs e)
     {
-        // After a tab switch, pop any remaining sub-pages that weren't cleared
-        // by the Navigating handler (e.g. if NavigationStack.Count was 1 but
-        // Shell still switched sections).
-        if ((e.Source == ShellNavigationSource.ShellSectionChanged ||
-             e.Source == ShellNavigationSource.ShellItemChanged)
-            && Navigation.NavigationStack.Count > 1)
+        // Safety net: if a tab switch completed and sub-pages are still on the stack, pop them
+        if (e.Source == ShellNavigationSource.ShellSectionChanged ||
+            e.Source == ShellNavigationSource.ShellItemChanged)
         {
-            Navigation.PopToRootAsync(animated: false);
+            PlantDetail?.Reset();
+            if (Navigation.NavigationStack.Count > 1)
+                Navigation.PopToRootAsync(animated: false);
         }
     }
 

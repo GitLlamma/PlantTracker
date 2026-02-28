@@ -12,10 +12,12 @@ public partial class PlantDetailPage : ContentPage
         BindingContext = _vm = vm;
     }
 
-    protected override void OnNavigatingFrom(NavigatingFromEventArgs args)
+    public void Reset() => _vm.Reset();
+
+    protected override void OnDisappearing()
     {
-        base.OnNavigatingFrom(args);
-        _vm.Reset();
+        base.OnDisappearing();
+        _vm.CancelEditCommand.Execute(null);
     }
 }
 
