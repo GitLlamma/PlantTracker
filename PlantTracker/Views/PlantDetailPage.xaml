@@ -7,10 +7,22 @@
              Title="{Binding Title}">
 
     <Shell.TitleView>
-        <Label Text="{Binding Title}"
-               FontAttributes="Bold"
-               FontSize="17"
-               VerticalOptions="Center"/>
+        <Grid ColumnDefinitions="*,Auto" Padding="0,0,8,0">
+            <Label Grid.Column="0"
+                   Text="{Binding Title}"
+                   FontAttributes="Bold"
+                   FontSize="17"
+                   VerticalOptions="Center"/>
+            <Button Grid.Column="1"
+                    Text="✏️"
+                    Command="{Binding BeginEditCommand}"
+                    IsVisible="{Binding IsEditableAnyPlant}"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Primary}"
+                    FontSize="18"
+                    Padding="4,0"
+                    VerticalOptions="Center"/>
+        </Grid>
     </Shell.TitleView>
 
     <Grid RowDefinitions="*">
@@ -140,22 +152,16 @@
                             </VerticalStackLayout>
                         </Border>
 
-                        <!-- Growth Rate (tappable — expands detail) -->
+                        <!-- Growth Rate -->
                         <Border Grid.Column="1" Style="{StaticResource CardFrame}"
                                 IsVisible="{Binding Detail.GrowthRate, Converter={x:StaticResource IsNotNullConverter}}">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding ToggleGrowthRateCommand}"/>
-                            </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="4">
                                 <Label Text="📈 Growth Rate" FontSize="12" TextColor="Gray"/>
                                 <Label Text="{Binding Detail.GrowthRate}" FontAttributes="Bold"/>
-                                <Label Text="Tap for details"
-                                       FontSize="10" TextColor="{StaticResource Primary}"
-                                       IsVisible="{Binding IsGrowthRateExpanded, Converter={x:StaticResource InvertedBoolConverter}}"/>
                                 <Label Text="{Binding GrowthRateDetail}"
                                        FontSize="12"
                                        LineBreakMode="WordWrap"
-                                       IsVisible="{Binding IsGrowthRateExpanded}"/>
+                                       IsVisible="{Binding GrowthRateDetail, Converter={x:StaticResource IsNotNullConverter}}"/>
                             </VerticalStackLayout>
                         </Border>
 
@@ -179,6 +185,108 @@
                             IsVisible="{Binding HasPerenualData}"
                             Style="{StaticResource PrimaryButton}"
                             Margin="0,8,0,0"/>
+
+                    <!-- My Photos gallery -->
+                    <Button Text="📷 My Photos"
+                            Command="{Binding GoToGalleryCommand}"
+                            IsVisible="{Binding IsInGardenAndSaved}"
+                            Style="{StaticResource PrimaryButton}"
+                            Margin="0,4,0,0"/>
+
+                    <!-- ── Inline Edit Panel ─────────────────────────────── -->
+                    <Border IsVisible="{Binding IsEditing}"
+                            BackgroundColor="{StaticResource Secondary}"
+                            StrokeShape="RoundRectangle 12"
+                            Stroke="Transparent"
+                            Padding="16"
+                            Margin="0,12,0,0">
+                        <VerticalStackLayout Spacing="16">
+
+                            <Label Text="Edit Plant" FontAttributes="Bold" FontSize="17"/>
+
+                            <!-- Name — custom plants only -->
+                            <VerticalStackLayout Spacing="6" IsVisible="{Binding IsEditableCustomPlant}">
+                                <Label Text="Plant Name" FontAttributes="Bold" FontSize="13"/>
+                                <Border Style="{StaticResource CardFrame}" Padding="12,4">
+                                    <Entry Text="{Binding EditCommonName}" Placeholder="e.g. Tomato"/>
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- Scientific Name — custom plants only -->
+                            <VerticalStackLayout Spacing="6" IsVisible="{Binding IsEditableCustomPlant}">
+                                <Label Text="Scientific Name" FontAttributes="Bold" FontSize="13"/>
+                                <Border Style="{StaticResource CardFrame}" Padding="12,4">
+                                    <Entry Text="{Binding EditScientificName}" Placeholder="Optional"/>
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- Watering — custom plants only -->
+                            <VerticalStackLayout Spacing="6" IsVisible="{Binding IsEditableCustomPlant}">
+                                <Label Text="Watering Needs" FontAttributes="Bold" FontSize="13"/>
+                                <Border Style="{StaticResource CardFrame}" Padding="4,0">
+                                    <Picker ItemsSource="{Binding WateringOptions}"
+                                            SelectedItem="{Binding EditSelectedWatering}"/>
+                                </Border>
+                                <Label Text="{Binding EditWateringDescription}" FontSize="11" TextColor="Gray"/>
+                            </VerticalStackLayout>
+
+                            <!-- Sunlight — custom plants only -->
+                            <VerticalStackLayout Spacing="6" IsVisible="{Binding IsEditableCustomPlant}">
+                                <Label Text="Sunlight" FontAttributes="Bold" FontSize="13"/>
+                                <Border Style="{StaticResource CardFrame}" Padding="4,0">
+                                    <Picker ItemsSource="{Binding SunlightOptions}"
+                                            SelectedItem="{Binding EditSelectedSunlight}"/>
+                                </Border>
+                                <Label Text="{Binding EditSunlightDescription}" FontSize="11" TextColor="Gray"/>
+                            </VerticalStackLayout>
+
+                            <!-- Life Cycle — custom plants only -->
+                            <VerticalStackLayout Spacing="6" IsVisible="{Binding IsEditableCustomPlant}">
+                                <Label Text="Life Cycle" FontAttributes="Bold" FontSize="13"/>
+                                <Border Style="{StaticResource CardFrame}" Padding="4,0">
+                                    <Picker ItemsSource="{Binding CycleOptions}"
+                                            SelectedItem="{Binding EditSelectedCycle}"/>
+                                </Border>
+                                <Label Text="{Binding EditCycleDescription}" FontSize="11" TextColor="Gray"/>
+                            </VerticalStackLayout>
+
+                            <!-- Care Level — custom plants only -->
+                            <VerticalStackLayout Spacing="6" IsVisible="{Binding IsEditableCustomPlant}">
+                                <Label Text="Care Level" FontAttributes="Bold" FontSize="13"/>
+                                <Border Style="{StaticResource CardFrame}" Padding="4,0">
+                                    <Picker ItemsSource="{Binding CareLevelOptions}"
+                                            SelectedItem="{Binding EditSelectedCareLevel}"/>
+                                </Border>
+                                <Label Text="{Binding EditCareLevelDescription}" FontSize="11" TextColor="Gray"/>
+                            </VerticalStackLayout>
+
+                            <!-- Notes — all saved plants -->
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="Notes" FontAttributes="Bold" FontSize="13"/>
+                                <Border Style="{StaticResource CardFrame}" Padding="12,4">
+                                    <Editor Text="{Binding EditNotes}"
+                                            Placeholder="Any notes about this plant..."
+                                            AutoSize="TextChanges"
+                                            MinimumHeightRequest="80"/>
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- Save / Cancel -->
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                                <Button Grid.Column="0"
+                                        Text="Cancel"
+                                        Command="{Binding CancelEditCommand}"
+                                        BackgroundColor="{StaticResource Gray200}"
+                                        TextColor="{StaticResource Gray900}"/>
+                                <Button Grid.Column="1"
+                                        Text="Save Changes ✅"
+                                        Command="{Binding SaveEditCommand}"
+                                        Style="{StaticResource PrimaryButton}"
+                                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"/>
+                            </Grid>
+
+                        </VerticalStackLayout>
+                    </Border>
 
                 </VerticalStackLayout>
             </VerticalStackLayout>

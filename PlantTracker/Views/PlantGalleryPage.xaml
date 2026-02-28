@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlantTracker.ViewModels"
+             xmlns:dto="clr-namespace:PlantTracker.Shared.DTOs.Garden;assembly=PlantTracker.Shared"
+             x:Class="PlantTracker.Views.PlantGalleryPage"
+             x:DataType="vm:PlantGalleryViewModel"
+             Title="{Binding Title}">
+
+    <Shell.TitleView>
+        <Label Text="{Binding PlantName, StringFormat='📷 {0}'}"
+               FontAttributes="Bold"
+               FontSize="17"
+               VerticalOptions="Center"
+               LineBreakMode="TailTruncation"/>
+    </Shell.TitleView>
+
+    <Grid RowDefinitions="*,Auto">
+
+        <!-- Loading -->
+        <ActivityIndicator Grid.Row="0"
+                           IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center"/>
+
+        <!-- Empty state -->
+        <VerticalStackLayout Grid.Row="0"
+                             IsVisible="{Binding IsEmpty}"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Center"
+                             Spacing="12">
+            <Label Text="📷" FontSize="56" HorizontalOptions="Center"/>
+            <Label Text="No photos yet."
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"/>
+            <Label Text="Tap the button below to add your first photo."
+                   FontSize="13"
+                   TextColor="Gray"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"/>
+        </VerticalStackLayout>
+
+        <!-- Photo grid -->
+        <CollectionView Grid.Row="0"
+                        ItemsSource="{Binding Photos}"
+                        IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                        Margin="4,8,4,0">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical"
+                                 Span="2"
+                                 HorizontalItemSpacing="4"
+                                 VerticalItemSpacing="4"/>
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="dto:PlantPhotoDto">
+                    <Grid>
+                        <Border StrokeShape="RoundRectangle 10"
+                                Stroke="{StaticResource Gray200Brush}"
+                                Padding="0"
+                                HeightRequest="180">
+                            <Grid>
+                                <!-- Photo -->
+                                <Image Source="{Binding ImageData}"
+                                       Aspect="AspectFill"
+                                       HeightRequest="180"/>
+
+                                <!-- Date overlay -->
+                                <Border BackgroundColor="#88000000"
+                                        StrokeShape="RoundRectangle 0,0,10,10"
+                                        Stroke="Transparent"
+                                        Padding="8,4"
+                                        VerticalOptions="End">
+                                    <Label Text="{Binding TakenAt, StringFormat='{0:MMM d, yyyy}'}"
+                                           FontSize="11"
+                                           TextColor="White"/>
+                                </Border>
+
+                                <!-- Set as Cover button -->
+                                <Button Text="🖼"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlantGalleryViewModel}}, Path=SetAsCoverCommand}"
+                                        CommandParameter="{Binding .}"
+                                        BackgroundColor="#CC000000"
+                                        TextColor="White"
+                                        FontSize="12"
+                                        CornerRadius="12"
+                                        WidthRequest="28"
+                                        HeightRequest="28"
+                                        Padding="0"
+                                        VerticalOptions="Start"
+                                        HorizontalOptions="Start"
+                                        Margin="6,6,0,0"/>
+
+                                <!-- Delete button -->
+                                <Button Text="✕"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlantGalleryViewModel}}, Path=DeletePhotoCommand}"
+                                        CommandParameter="{Binding .}"
+                                        BackgroundColor="#CC000000"
+                                        TextColor="White"
+                                        FontSize="12"
+                                        CornerRadius="12"
+                                        WidthRequest="28"
+                                        HeightRequest="28"
+                                        Padding="0"
+                                        VerticalOptions="Start"
+                                        HorizontalOptions="End"
+                                        Margin="0,6,6,0"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Bottom bar: upload button + uploading indicator -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Padding="16,12" ColumnSpacing="12">
+            <Button Grid.Column="0"
+                    Text="📷 Add Photo"
+                    Command="{Binding AddPhotoCommand}"
+                    IsEnabled="{Binding IsUploading, Converter={StaticResource InvertedBoolConverter}}"
+                    Style="{StaticResource PrimaryButton}"/>
+            <ActivityIndicator Grid.Column="1"
+                               IsRunning="{Binding IsUploading}"
+                               IsVisible="{Binding IsUploading}"
+                               WidthRequest="28"
+                               HeightRequest="28"
+                               VerticalOptions="Center"/>
+        </Grid>
+
+    </Grid>
+</ContentPage>
+

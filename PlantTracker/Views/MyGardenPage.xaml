@@ -70,7 +70,7 @@
                             </Grid>
 
                             <!-- Bottom row: action buttons -->
-                            <Grid Grid.Row="1" ColumnDefinitions="*,*,Auto,Auto" ColumnSpacing="8">
+                            <Grid Grid.Row="1" ColumnDefinitions="*,*,Auto" ColumnSpacing="8">
                                 <Button Grid.Column="0"
                                         Text="💧 Water"
                                         FontSize="13" Padding="0,8"
@@ -85,13 +85,6 @@
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyGardenViewModel}}, Path=EditReminderCommand}"
                                         CommandParameter="{Binding .}"/>
                                 <Button Grid.Column="2"
-                                        Text="✏️"
-                                        FontSize="13" Padding="12,8"
-                                        BackgroundColor="{StaticResource Secondary}"
-                                        TextColor="{StaticResource Primary}"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyGardenViewModel}}, Path=EditPlantCommand}"
-                                        CommandParameter="{Binding .}"/>
-                                <Button Grid.Column="3"
                                         Text="🗑"
                                         FontSize="13" Padding="12,8"
                                         BackgroundColor="{StaticResource Gray200}"

@@ -18,6 +18,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("AddCustomPlant", typeof(AddCustomPlantPage));
         Routing.RegisterRoute("EditPlant", typeof(EditPlantPage));
         Routing.RegisterRoute("PlantDiseases", typeof(PlantDiseasesPage));
+        Routing.RegisterRoute("PlantGallery", typeof(PlantGalleryPage));
     }
 
     protected override async void OnAppearing()

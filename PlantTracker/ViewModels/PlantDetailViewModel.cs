@@ -23,12 +23,76 @@ public partial class PlantDetailViewModel : BaseViewModel
     [ObservableProperty] private PlantingAdviceDto? _advice;
     [ObservableProperty] private bool _isInGarden;
     [ObservableProperty] private string _adviceEmoji = string.Empty;
-    [ObservableProperty] private bool _isGrowthRateExpanded;
     [ObservableProperty] private UserPlantDto? _userPlant;
+    [ObservableProperty] private int _userPlantId; // DB row ID — needed for gallery/photos
+
+    // ── Inline edit state ────────────────────────────────────────────────────
+    [ObservableProperty] private bool _isEditing;
+    [ObservableProperty] private string _editNotes = string.Empty;
+    [ObservableProperty] private string _editCommonName = string.Empty;
+    [ObservableProperty] private string _editScientificName = string.Empty;
+    [ObservableProperty] private string _editSelectedWatering = "Average";
+    [ObservableProperty] private string _editSelectedSunlight = "Full Sun";
+    [ObservableProperty] private string _editSelectedCycle = "Perennial";
+    [ObservableProperty] private string _editSelectedCareLevel = "Medium";
+
+    public List<string> WateringOptions { get; } = ["Frequent", "Average", "Minimum", "None"];
+    public List<string> SunlightOptions { get; } = ["Full Sun", "Part Sun/Part Shade", "Part Shade", "Full Shade", "Filtered Shade"];
+    public List<string> CycleOptions { get; } = ["Perennial", "Annual", "Biennial", "Ephemeral"];
+    public List<string> CareLevelOptions { get; } = ["Low", "Medium", "High"];
+
+    public string EditWateringDescription => EditSelectedWatering switch
+    {
+        "Frequent" => "Water every 1–2 days. Keep soil consistently moist.",
+        "Average"  => "Water every 5–7 days. Allow top inch of soil to dry between waterings.",
+        "Minimum"  => "Water every 2 weeks or less. Drought-tolerant; avoid overwatering.",
+        "None"     => "No regular watering needed.",
+        _          => string.Empty
+    };
+
+    public string EditSunlightDescription => EditSelectedSunlight switch
+    {
+        "Full Sun"            => "6+ hours of direct sunlight per day.",
+        "Part Sun/Part Shade" => "3–6 hours of direct sun. Tolerates both sunny and shadier spots.",
+        "Part Shade"          => "3–6 hours of sunlight, preferably morning sun with afternoon shade.",
+        "Full Shade"          => "Fewer than 3 hours of direct sunlight per day.",
+        "Filtered Shade"      => "Dappled light through a tree canopy throughout the day.",
+        _                     => string.Empty
+    };
+
+    public string EditCycleDescription => EditSelectedCycle switch
+    {
+        "Perennial"  => "Lives for more than two years. Regrows each season.",
+        "Annual"     => "Completes its full life cycle in one growing season.",
+        "Biennial"   => "Takes two years to complete its life cycle.",
+        "Ephemeral"  => "Short-lived; completes its cycle in weeks and goes dormant.",
+        _            => string.Empty
+    };
+
+    public string EditCareLevelDescription => EditSelectedCareLevel switch
+    {
+        "Low"    => "Very forgiving. Tolerates neglect and irregular care.",
+        "Medium" => "Needs regular but straightforward attention.",
+        "High"   => "Requires frequent, specific care.",
+        _        => string.Empty
+    };
+
+    // True only for custom plants (PlantId == 0) that are in the garden
+    public bool IsEditableCustomPlant => IsInGarden && UserPlantId > 0 && PlantId == 0;
+    // Notes are editable for all saved garden plants
+    public bool IsEditableAnyPlant => IsInGarden && UserPlantId > 0;
+
+    partial void OnEditSelectedWateringChanged(string value) => OnPropertyChanged(nameof(EditWateringDescription));
+    partial void OnEditSelectedSunlightChanged(string value) => OnPropertyChanged(nameof(EditSunlightDescription));
+    partial void OnEditSelectedCycleChanged(string value)    => OnPropertyChanged(nameof(EditCycleDescription));
+    partial void OnEditSelectedCareLevelChanged(string value)=> OnPropertyChanged(nameof(EditCareLevelDescription));
 
     public string IndoorOutdoorText => Detail?.Indoor == true ? "Indoors" : "Outdoors";
 
     public bool HasPerenualData => PlantId > 0;
+
+    /// <summary>True when the plant is in the garden and has a known DB row ID — gallery button visible.</summary>
+    public bool IsInGardenAndSaved => IsInGarden && UserPlantId > 0;
 
     /// <summary>Human-readable growth rate detail built from GrowthRate, Cycle, FloweringSeason, FruitSeason.</summary>
     public string GrowthRateDetail
@@ -97,11 +161,104 @@ public partial class PlantDetailViewModel : BaseViewModel
         Title = "Plant Details";
     }
 
+    partial void OnUserPlantIdChanged(int value)
+    {
+        OnPropertyChanged(nameof(IsInGardenAndSaved));
+        OnPropertyChanged(nameof(IsEditableAnyPlant));
+        OnPropertyChanged(nameof(IsEditableCustomPlant));
+    }
+
+    partial void OnIsInGardenChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsInGardenAndSaved));
+        OnPropertyChanged(nameof(IsEditableAnyPlant));
+        OnPropertyChanged(nameof(IsEditableCustomPlant));
+    }
+
     partial void OnPlantIdChanged(int value)
     {
         OnPropertyChanged(nameof(HasPerenualData));
+        OnPropertyChanged(nameof(IsEditableCustomPlant));
         if (value > 0)
             LoadDetailCommand.ExecuteAsync(null);
+    }
+
+    [RelayCommand]
+    private void BeginEdit()
+    {
+        // Populate edit fields from current Detail
+        EditCommonName       = Detail?.CommonName ?? string.Empty;
+        EditScientificName   = Detail?.ScientificName ?? string.Empty;
+        EditNotes            = Detail?.Description ?? string.Empty;
+        EditSelectedWatering = WateringOptions.Contains(Detail?.Watering ?? "") ? Detail!.Watering! : "Average";
+        EditSelectedSunlight = SunlightOptions.Contains(Detail?.Sunlight?.FirstOrDefault() ?? "")
+                                ? Detail!.Sunlight!.First() : "Full Sun";
+        EditSelectedCycle    = CycleOptions.Contains(Detail?.Cycle ?? "") ? Detail!.Cycle! : "Perennial";
+        EditSelectedCareLevel = CareLevelOptions.Contains(Detail?.CareLevel ?? "") ? Detail!.CareLevel! : "Medium";
+        IsEditing = true;
+    }
+
+    [RelayCommand]
+    private void CancelEdit() => IsEditing = false;
+
+    [RelayCommand]
+    private async Task SaveEditAsync()
+    {
+        if (IsBusy || UserPlantId == 0) return;
+        IsBusy = true;
+
+        try
+        {
+            // Retrieve the current saved plant to preserve watering reminder state
+            var gardenPlants = await _garden.GetGardenAsync();
+            var existing = gardenPlants.FirstOrDefault(p => p.Id == UserPlantId);
+
+            var dto = new UpdateUserPlantDto
+            {
+                Notes                  = string.IsNullOrWhiteSpace(EditNotes) ? null : EditNotes.Trim(),
+                WateringReminderEnabled = existing?.WateringReminderEnabled ?? false,
+                WateringFrequencyDays  = existing?.WateringFrequencyDays,
+                LastWateredAt          = existing?.LastWateredAt,
+                // Custom-plant-only fields — API ignores these for Perenual plants
+                CommonName       = EditCommonName.Trim(),
+                ScientificName   = EditScientificName.Trim(),
+                Watering         = EditSelectedWatering,
+                Sunlight         = EditSelectedSunlight,
+                Cycle            = EditSelectedCycle,
+                CareLevel        = EditSelectedCareLevel
+            };
+
+            var (success, updated, error) = await _garden.UpdatePlantAsync(UserPlantId, dto);
+
+            if (success && updated is not null)
+            {
+                // Reflect changes in the Detail displayed on-screen
+                if (Detail is not null)
+                {
+                    Detail.Description     = updated.Notes;
+                    Detail.CommonName      = updated.CommonName;
+                    Detail.ScientificName  = updated.ScientificName;
+                    Detail.Watering        = updated.Watering;
+                    Detail.Sunlight        = string.IsNullOrEmpty(updated.Sunlight) ? [] : [updated.Sunlight];
+                    Detail.Cycle           = updated.Cycle;
+                    Detail.CareLevel       = updated.CareLevel;
+                    // Re-fire Detail changed notifications
+                    OnDetailChanged(Detail);
+                }
+
+                Title = updated.CommonName;
+                IsEditing = false;
+                WeakReferenceMessenger.Default.Send(new GardenPlantAddedMessage()); // refreshes My Garden list
+            }
+            else
+            {
+                await Shell.Current.DisplayAlertAsync("Error", error ?? "Could not save changes.", "OK");
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     partial void OnUserPlantChanged(UserPlantDto? value)
@@ -109,8 +266,9 @@ public partial class PlantDetailViewModel : BaseViewModel
         if (value is null) return;
 
         // Custom plant (PlantId == 0): build a PlantDetailDto from the saved UserPlantDto
-        // so the detail page can display it without calling the Perenual API.
         IsInGarden = true;
+        UserPlantId = value.Id;
+        OnPropertyChanged(nameof(IsInGardenAndSaved));
         Title = value.CommonName;
         Detail = new PlantDetailDto
         {
@@ -136,8 +294,6 @@ public partial class PlantDetailViewModel : BaseViewModel
         OnPropertyChanged(nameof(SunlightDescriptions));
     }
 
-    [RelayCommand]
-    private void ToggleGrowthRate() => IsGrowthRateExpanded = !IsGrowthRateExpanded;
 
     [RelayCommand]
     private async Task GoToDiseasesAsync()
@@ -145,6 +301,16 @@ public partial class PlantDetailViewModel : BaseViewModel
         await Shell.Current.GoToAsync("PlantDiseases", new Dictionary<string, object>
         {
             { "PlantId", PlantId },
+            { "PlantName", Detail?.CommonName ?? PlantSummary?.CommonName ?? string.Empty }
+        });
+    }
+
+    [RelayCommand]
+    private async Task GoToGalleryAsync()
+    {
+        await Shell.Current.GoToAsync("PlantGallery", new Dictionary<string, object>
+        {
+            { "UserPlantId", UserPlantId },
             { "PlantName", Detail?.CommonName ?? PlantSummary?.CommonName ?? string.Empty }
         });
     }
@@ -163,7 +329,10 @@ public partial class PlantDetailViewModel : BaseViewModel
 
             // Check if plant is already saved to garden
             var gardenPlants = await _garden.GetGardenAsync();
-            IsInGarden = gardenPlants.Any(p => p.PlantId == PlantId);
+            var savedPlant = gardenPlants.FirstOrDefault(p => p.PlantId == PlantId);
+            IsInGarden = savedPlant is not null;
+            UserPlantId = savedPlant?.Id ?? 0;
+            OnPropertyChanged(nameof(IsInGardenAndSaved));
 
             // Load zone advice using user's stored zip
             var user = await _auth.GetCurrentUserAsync();
@@ -201,11 +370,13 @@ public partial class PlantDetailViewModel : BaseViewModel
             WateringFrequencyDays = Detail?.WateringFrequencyDays
         };
 
-        var (success, _, error) = await _garden.AddPlantAsync(dto);
+        var (success, addedPlant, error) = await _garden.AddPlantAsync(dto);
 
         if (success)
         {
             IsInGarden = true;
+            UserPlantId = addedPlant?.Id ?? 0;
+            OnPropertyChanged(nameof(IsInGardenAndSaved));
             WeakReferenceMessenger.Default.Send(new GardenPlantAddedMessage());
         }
         else
@@ -214,5 +385,4 @@ public partial class PlantDetailViewModel : BaseViewModel
         }
     }
 }
-
 

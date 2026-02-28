@@ -80,5 +80,60 @@ public class GardenService
         var plant = await response.Content.ReadFromJsonAsync<UserPlantDto>();
         return (true, plant);
     }
-}
 
+    public async Task<List<PlantPhotoDto>> GetPhotosAsync(int userPlantId)
+    {
+        await SetAuthHeaderAsync();
+        try
+        {
+            return await _http.GetFromJsonAsync<List<PlantPhotoDto>>($"api/garden/{userPlantId}/photos") ?? [];
+        }
+        catch { return []; }
+    }
+
+    public async Task<(bool Success, string? Error)> AddPhotoAsync(int userPlantId, PlantPhotoDto dto)
+    {
+        await SetAuthHeaderAsync();
+        try
+        {
+            var response = await _http.PostAsJsonAsync($"api/garden/{userPlantId}/photos", dto);
+            if (!response.IsSuccessStatusCode)
+            {
+                var err = await response.Content.ReadAsStringAsync();
+                return (false, err);
+            }
+            return (true, null);
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.Message);
+        }
+    }
+
+    public async Task<bool> DeletePhotoAsync(int userPlantId, int photoId)
+    {
+        await SetAuthHeaderAsync();
+        try
+        {
+            var response = await _http.DeleteAsync($"api/garden/{userPlantId}/photos/{photoId}");
+            return response.IsSuccessStatusCode;
+        }
+        catch { return false; }
+    }
+
+    public async Task<bool> SetCoverPhotoAsync(int userPlantId, string imageData)
+    {
+        await SetAuthHeaderAsync();
+        try
+        {
+            // We only want to update ThumbnailUrl; pass the existing plant data through with
+            // a partial DTO — the API ignores null fields for care attributes.
+            var response = await _http.PutAsJsonAsync($"api/garden/{userPlantId}", new UpdateUserPlantDto
+            {
+                ThumbnailUrl = imageData
+            });
+            return response.IsSuccessStatusCode;
+        }
+        catch { return false; }
+    }
+}

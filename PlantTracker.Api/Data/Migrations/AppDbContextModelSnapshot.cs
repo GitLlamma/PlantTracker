@@ -220,6 +220,36 @@ namespace PlantTracker.Api.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("PlantTracker.Api.Models.PlantPhoto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Caption")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ImageData")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("TakenAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("UserPlantId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserPlantId");
+
+                    b.ToTable("PlantPhotos");
+                });
+
             modelBuilder.Entity("PlantTracker.Api.Models.UserPlant", b =>
                 {
                     b.Property<int>("Id")
@@ -325,6 +355,15 @@ namespace PlantTracker.Api.Data.Migrations
                     b.HasOne("PlantTracker.Api.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PlantTracker.Api.Models.PlantPhoto", b =>
+                {
+                    b.HasOne("PlantTracker.Api.Models.UserPlant", null)
+                        .WithMany()
+                        .HasForeignKey("UserPlantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -1,4 +1,4 @@
-﻿﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using PlantTracker.Services;
 using PlantTracker.ViewModels;
 using PlantTracker.Views;
@@ -46,6 +46,7 @@ public static class MauiProgram
         builder.Services.AddTransient<AddCustomPlantViewModel>();
         builder.Services.AddTransient<EditPlantViewModel>();
         builder.Services.AddTransient<PlantDiseasesViewModel>();
+        builder.Services.AddTransient<PlantGalleryViewModel>();
 
         // ── Views ────────────────────────────────────────────────────────────
         builder.Services.AddTransient<LoginPage>();
@@ -58,6 +59,7 @@ public static class MauiProgram
         builder.Services.AddTransient<AddCustomPlantPage>();
         builder.Services.AddTransient<EditPlantPage>();
         builder.Services.AddTransient<PlantDiseasesPage>();
+        builder.Services.AddTransient<PlantGalleryPage>();
 
         // ── Shell & App ──────────────────────────────────────────────────────
         builder.Services.AddSingleton<AppShell>();

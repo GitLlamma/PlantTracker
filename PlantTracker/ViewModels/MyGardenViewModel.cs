@@ -19,7 +19,7 @@ public partial class GardenPlantItem(UserPlantDto plant) : ObservableObject
     [ObservableProperty] private bool _isWatering;
 }
 
-public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAddedMessage>
+public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAddedMessage>, IRecipient<PlantCoverPhotoChangedMessage>
 {
     private readonly GardenService _garden;
     private readonly EditPlantViewModel _editVm;
@@ -33,13 +33,27 @@ public partial class MyGardenViewModel : BaseViewModel, IRecipient<GardenPlantAd
         _garden = garden;
         _editVm = editVm;
         Title = "My Garden";
-        WeakReferenceMessenger.Default.Register(this);
+        WeakReferenceMessenger.Default.Register<GardenPlantAddedMessage>(this);
+        WeakReferenceMessenger.Default.Register<PlantCoverPhotoChangedMessage>(this);
     }
 
     public void Receive(GardenPlantAddedMessage message)
     {
         MainThread.BeginInvokeOnMainThread(() =>
             LoadGardenCommand.ExecuteAsync(null));
+    }
+
+    public void Receive(PlantCoverPhotoChangedMessage message)
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            var item = Plants.FirstOrDefault(p => p.Plant.Id == message.UserPlantId);
+            if (item is null) return;
+
+            // Mutate ThumbnailUrl then re-assign Plant to trigger the ObservableProperty notification
+            item.Plant.ThumbnailUrl = message.ImageData;
+            item.Plant = item.Plant;
+        });
     }
 
     [RelayCommand]

@@ -19,4 +19,7 @@ public class UpdateUserPlantDto
     public string? Sunlight { get; set; }
     public string? Cycle { get; set; }
     public string? CareLevel { get; set; }
+
+    // Cover photo — updatable for all plants
+    public string? ThumbnailUrl { get; set; }
 }

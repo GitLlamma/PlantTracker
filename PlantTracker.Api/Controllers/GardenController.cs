@@ -137,6 +137,10 @@ public class GardenController : ControllerBase
         plant.WateringFrequencyDays = dto.WateringFrequencyDays;
         plant.LastWateredAt = dto.LastWateredAt;
 
+        // Cover photo is updatable for all plants
+        if (dto.ThumbnailUrl is not null)
+            plant.ThumbnailUrl = dto.ThumbnailUrl;
+
         // Name and care attributes are only editable for custom plants
         if (plant.PlantId == 0)
         {
