@@ -4,15 +4,17 @@ namespace PlantTracker.Services;
 /// A delegating handler that intercepts 401 Unauthorized responses.
 /// When the server rejects an expired JWT, this clears the local session
 /// and redirects the user to the login page automatically.
+/// AuthService is resolved lazily to avoid a circular dependency:
+///   AuthService → HttpClient → SessionExpiredHandler → AuthService
 /// </summary>
 public class SessionExpiredHandler : DelegatingHandler
 {
-    private readonly AuthService _auth;
-    private bool _isHandling; // prevent re-entrant redirects
+    private readonly IServiceProvider _services;
+    private bool _isHandling;
 
-    public SessionExpiredHandler(AuthService auth)
+    public SessionExpiredHandler(IServiceProvider services)
     {
-        _auth = auth;
+        _services = services;
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
@@ -25,9 +27,9 @@ public class SessionExpiredHandler : DelegatingHandler
             _isHandling = true;
             try
             {
-                await _auth.LogoutAsync();
+                var auth = _services.GetRequiredService<AuthService>();
+                await auth.LogoutAsync();
 
-                // CS4014 suppressed: async void lambda is safe here because all exceptions are caught inside
 #pragma warning disable CS4014
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
@@ -39,7 +41,7 @@ public class SessionExpiredHandler : DelegatingHandler
                             "OK");
                         await Shell.Current.GoToAsync("//Login");
                     }
-                    catch { /* Shell may not be ready; navigation will fall through to login on next action */ }
+                    catch { /* Shell may not be ready; user will be redirected on next action */ }
                 });
 #pragma warning restore CS4014
             }
