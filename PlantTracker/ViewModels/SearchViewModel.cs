@@ -23,6 +23,16 @@ public partial class SearchViewModel : BaseViewModel
         Title = "Search Plants";
     }
 
+    public void Reset()
+    {
+        _debounceCts?.Cancel();
+        _debounceCts = null;
+        SearchQuery = string.Empty;
+        Results.Clear();
+        HasSearched = false;
+        NoResults = false;
+    }
+
     partial void OnSearchQueryChanged(string value)
     {
         _debounceCts?.Cancel();
